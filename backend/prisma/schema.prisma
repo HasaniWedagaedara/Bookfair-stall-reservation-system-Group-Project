@@ -1,15 +1,105 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password      String
+  name          String
+  businessName  String?
+  phone         String
+  role          UserRole      @default(PUBLISHER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  reservations  Reservation[]
+  
+  @@map("users")
+}
+
+enum UserRole {
+  PUBLISHER
+  ORGANIZER
+}
+
+model Stall {
+  id            String        @id @default(uuid())
+  name          String        @unique  // e.g., "A1", "B5", "C12"
+  size          StallSize
+  location      String        // e.g., "Ground Floor, Section A"
+  dimensions    String        // e.g., "10x10 feet"
+  pricePerDay   Float
+  status        StallStatus   @default(AVAILABLE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  reservations  Reservation[]
+  
+  @@map("stalls")
+}
+
+enum StallSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum StallStatus {
+  AVAILABLE
+  RESERVED
+  MAINTENANCE
+}
+
+model Reservation {
+  id              String            @id @default(uuid())
+  userId          String
+  stallId         String
+  reservationDate DateTime          @default(now())
+  status          ReservationStatus @default(PENDING)
+  qrCode          String?           @unique
+  totalAmount     Float
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stall           Stall             @relation(fields: [stallId], references: [id], onDelete: Cascade)
+  genres          ReservationGenre[]
+  
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Genre {
+  id          String             @id @default(uuid())
+  name        String             @unique  // e.g., "Fiction", "Non-Fiction", "Poetry"
+  description String?
+  createdAt   DateTime           @default(now())
+  
+  reservations ReservationGenre[]
+  
+  @@map("genres")
+}
+
+// Junction table for Reservation and Genre (many-to-many)
+model ReservationGenre {
+  id            String      @id @default(uuid())
+  reservationId String
+  genreId       String
+  
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  genre         Genre       @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  
+  @@unique([reservationId, genreId])
+  @@map("reservation_genres")
 }
