@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -8,93 +8,103 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-} from '@mui/material';
+  DialogActions,
+  CircularProgress,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 interface Stall {
   id: string;
-  size: 'Small' | 'Medium' | 'Large';
+  name: string;
+  size: "SMALL" | "MEDIUM" | "LARGE";
+  pricePerDay: number;
+  status: "AVAILABLE" | "RESERVED" | "MAINTENANCE";
   widthUnits: number;
   heightUnits: number;
   row: number;
   col: number;
-  price: number;
-  
 }
 
-// ====================================================
-// Floor layout based on uploaded map
-// ====================================================
-
-const stalls: Stall[] = [
-  // === Top row: E1–E5 (Large) ===
-  { id: 'E1', size: 'Large', widthUnits: 3, heightUnits: 2, row: 0, col: 0 , price: 40000},
-  { id: 'E2', size: 'Large', widthUnits: 3, heightUnits: 2, row: 0, col: 3 , price: 40000},
-  { id: 'E3', size: 'Large', widthUnits: 3, heightUnits: 2, row: 0, col: 6 , price: 40000},
-  { id: 'E4', size: 'Large', widthUnits: 3, heightUnits: 2, row: 0, col: 9 , price: 40000},
-  { id: 'E5', size: 'Large', widthUnits: 3, heightUnits: 2, row: 0, col: 12 ,price: 40000},
-
-  // === A Section (Small) ===
-  { id: 'A1', size: 'Small', widthUnits: 1, heightUnits: 1, row: 3, col: 0 , price: 15000},
-  { id: 'A2', size: 'Small', widthUnits: 1, heightUnits: 1, row: 3, col: 1 , price: 15000},
-  { id: 'A3', size: 'Small', widthUnits: 1, heightUnits: 1, row: 3, col: 2 , price: 15000},
-  { id: 'A4', size: 'Small', widthUnits: 1, heightUnits: 1, row: 3, col: 3 , price: 15000},
-  { id: 'A5', size: 'Small', widthUnits: 1, heightUnits: 1, row: 3, col: 4 , price: 15000},
-  { id: 'A6', size: 'Small', widthUnits: 1, heightUnits: 1, row: 4, col: 0 , price: 15000},
-  { id: 'A7', size: 'Small', widthUnits: 1, heightUnits: 1, row: 4, col: 1 , price: 15000},
-  { id: 'A8', size: 'Small', widthUnits: 1, heightUnits: 1, row: 4, col: 2 , price: 15000},
-  { id: 'A9', size: 'Small', widthUnits: 1, heightUnits: 1, row: 4, col: 3 , price: 15000},
-  { id: 'A10', size: 'Small', widthUnits: 1, heightUnits: 1, row: 4, col: 4 , price: 15000},
-
-  // === B Section (Medium) ===
-  { id: 'B1', size: 'Medium', widthUnits: 2, heightUnits: 2, row: 3, col: 7 , price: 25000},
-  { id: 'B2', size: 'Medium', widthUnits: 2, heightUnits: 2, row: 3, col: 9 , price: 25000},
-
-  // === C Section (Small) ===
-  { id: 'C1', size: 'Small', widthUnits: 1, heightUnits: 1, row: 3, col: 12 , price: 15000 },
-  { id: 'C2', size: 'Small', widthUnits: 1, heightUnits: 1, row: 3, col: 13 , price: 15000},
-  { id: 'C3', size: 'Small', widthUnits: 1, heightUnits: 1, row: 4, col: 12 , price: 15000},
-  { id: 'C4', size: 'Small', widthUnits: 1, heightUnits: 1, row: 4, col: 13 , price: 15000},
-  { id: 'C5', size: 'Small', widthUnits: 1, heightUnits: 1, row: 5, col: 12 , price: 15000},
-  { id: 'C6', size: 'Small', widthUnits: 1, heightUnits: 1, row: 5, col: 13 , price: 15000},
-
-  // === D Section (Large + Small mix) ===
-  { id: 'D1', size: 'Medium', widthUnits: 2, heightUnits: 2, row: 7, col: 0 , price: 25000},
-  { id: 'D2', size: 'Medium', widthUnits: 2, heightUnits: 2, row: 7, col: 2 , price: 25000},
-  { id: 'D4', size: 'Medium', widthUnits: 2, heightUnits: 2,  row: 7, col: 4 , price: 25000},
-  { id: 'D5', size: 'Medium', widthUnits: 2, heightUnits: 2,  row: 7, col: 6 , price: 25000},
-  { id: 'D6', size: 'Medium', widthUnits: 2, heightUnits: 2,  row: 7, col: 8 , price: 25000},
-  { id: 'D7', size: 'Medium', widthUnits: 2, heightUnits: 2,  row: 7, col: 10 , price: 25000},
-  { id: 'D8', size: 'Small', widthUnits: 1, heightUnits: 1, row: 7, col: 12 , price: 15000},
-  { id: 'D9', size: 'Small', widthUnits: 1, heightUnits: 1, row: 8, col: 12 , price: 15000},
-  { id: 'D10', size: 'Small', widthUnits: 1, heightUnits: 1, row: 7, col: 13 , price: 15000},
-  { id: 'D11', size: 'Small', widthUnits: 1, heightUnits: 1, row: 8, col: 13 , price: 15000},
+const mockStallData: Stall[] = [
+  { id: 'uuid-1', name: 'E1', size: 'LARGE', pricePerDay: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 0 },
+  { id: 'uuid-2', name: 'E2', size: 'LARGE', pricePerDay: 40000, status: 'RESERVED', widthUnits: 3, heightUnits: 2, row: 0, col: 3 },
+  { id: 'uuid-3', name: 'E3', size: 'LARGE', pricePerDay: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 6 },
+  { id: 'uuid-4', name: 'A1', size: 'SMALL', pricePerDay: 15000, status: 'AVAILABLE', widthUnits: 1, heightUnits: 1, row: 3, col: 0 },
+  { id: 'uuid-5', name: 'A2', size: 'SMALL', pricePerDay: 15000, status: 'MAINTENANCE', widthUnits: 1, heightUnits: 1, row: 3, col: 1 },
 ];
 
 const FloorMapPage: React.FC = () => {
+  const [stalls, setStalls] = useState<Stall[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selected, setSelected] = useState<Stall | null>(null);
-  const handleClick = (stall: Stall) => setSelected(stall);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchStalls = () => {
+      setTimeout(() => {
+        setStalls(mockStallData);
+        setIsLoading(false);
+      }, 1000);
+    };
+
+    fetchStalls();
+  }, []);
+
+  const handleClick = (stall: Stall) => {
+    if (stall.status === "AVAILABLE") {
+      setSelected(stall);
+    }
+  };
+
   const handleClose = () => setSelected(null);
+
+  const handleConfirmReservation = async () => {
+    if (!selected) return;
+
+    try {
+      console.log('Reserving stall:', selected.id);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error("Failed to reserve stall:", error);
+    } finally {
+      handleClose();
+    }
+  };
+
+  const getStallColor = (status: Stall['status']) => {
+    if (status === "RESERVED") return "#a0a0a0";
+    if (status === "MAINTENANCE") return "#f5a623";
+    return "#4682B4";
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+        <Typography sx={{ ml: 2 }}>Loading Floor Map...</Typography>
+      </Box>
+    );
+  }
 
   const rows = Math.max(...stalls.map((s) => s.row + s.heightUnits)) + 1;
   const cols = Math.max(...stalls.map((s) => s.col + s.widthUnits)) + 1;
 
   return (
-    <Container sx={{ py: 8 }}>
+    <Container sx={{ py: 8, mb: 6 }}>
       <Typography variant="h3" align="center" gutterBottom>
         Colombo International Book Fair – Floor Map
       </Typography>
       <Typography variant="body1" align="center" color="textSecondary" paragraph>
-        Click on a stall to see details.
+        Click on an available stall to reserve.
       </Typography>
 
-      {/* FLOOR GRID */}
       <Box
         sx={{
-          display: 'grid',
+          display: "grid",
           gridTemplateRows: `repeat(${rows}, 60px)`,
           gridTemplateColumns: `repeat(${cols}, 60px)`,
           gap: 1,
-          justifyContent: 'center',
+          justifyContent: "center",
           mt: 4,
           mb: 6,
         }}
@@ -104,57 +114,44 @@ const FloorMapPage: React.FC = () => {
             key={stall.id}
             onClick={() => handleClick(stall)}
             variant="contained"
+            disabled={stall.status !== "AVAILABLE"}
             sx={{
               gridRow: `${stall.row + 1} / span ${stall.heightUnits}`,
               gridColumn: `${stall.col + 1} / span ${stall.widthUnits}`,
               borderRadius: 1,
-              fontWeight: 'bold',
-              color: 'white',
-              backgroundColor:
-                stall.size === 'Small'
-                  ? '#FFD700' // Yellow
-                  : stall.size === 'Medium'
-                  ? '#FF69B4' // Pink
-                  : '#4682B4', // Blue
-              '&:hover': { opacity: 0.85 },
+              fontWeight: "bold",
+              color: "white",
+              backgroundColor: getStallColor(stall.status),
+              "&:hover": {
+                opacity: 0.85,
+                backgroundColor: getStallColor(stall.status),
+              },
+              "&.Mui-disabled": {
+                backgroundColor: "#a0a0a0",
+                color: "#f0f0f0"
+              }
             }}
           >
-            {stall.id}
+            {stall.name}
           </Button>
         ))}
-
-        {/* Non-clickable placeholders */}
-
-
-        <Box
-          sx={{
-            gridRow: `${11}`,
-            gridColumn: `6 / span 2`,
-            backgroundColor: '#ddd',
-            borderRadius: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold',
-            color: '#333',
-          }}
-        >
-          Entrance
-        </Box>
       </Box>
 
-      {/* STALL DETAILS */}
       <Dialog open={!!selected} onClose={handleClose}>
-        <DialogTitle>Stall {selected?.id}</DialogTitle>
+        <DialogTitle>Reserve Stall {selected?.name}?</DialogTitle>
         <DialogContent>
           <DialogContentText>
             <strong>Size:</strong> {selected?.size} <br />
-            <strong>Price:</strong>Rs.{selected?.price} <br />
-            <strong>Width Units:</strong> {selected?.widthUnits} <br />
-            <strong>Height Units:</strong> {selected?.heightUnits} <br />
-            <strong>Position:</strong> Row {selected?.row + 1}, Col {selected?.col + 1}
+            <strong>Price:</strong> Rs. {selected?.pricePerDay} <br />
+            <strong>Status:</strong> {selected?.status}
           </DialogContentText>
         </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleConfirmReservation} variant="contained" autoFocus>
+            Confirm Reservation
+          </Button>
+        </DialogActions>
       </Dialog>
     </Container>
   );
