@@ -104,6 +104,16 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
+    console.log('🔍 Admin Login Debug:');
+    console.log('Email:', email);
+    console.log('User found:', user ? 'YES' : 'NO');
+
+    if (user) {
+    console.log('User role from DB:', user.role);
+    console.log('Role type:', typeof user.role);
+    console.log('Role === "admin"?', user.role === 'admin');
+    console.log('Role !== "admin"?', user.role !== 'admin');
+   }
 
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
