@@ -7,14 +7,14 @@ async function bootstrap() {
 
   // Enable CORS for frontend
   app.enableCors({
-    origin: 'http://localhost:5173', // Your frontend URL
+    origin: 'http://localhost:3000', // Your frontend URL
     credentials: true, // Allow cookies
   });
 
   // Enable validation
   app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(3000);
-  console.log('🚀 Server running on http://localhost:3000');
+  await app.listen(5000);
+  console.log('🚀 Server running on http://localhost:5000');
 }
 bootstrap();
