@@ -21,13 +21,22 @@ export class AuthController {
   // Register endpoint
   @Post('register')
   async register(
-    @Body() body: { email: string; password: string; name: string },
+    @Body()
+    body: {
+      email: string;
+      password: string;
+      name: string;
+      businessName: string;
+      mobileNumber: string;
+    },
     @Res() res: Response,
   ) {
     const { user, token } = await this.authService.register(
       body.email,
       body.password,
       body.name,
+      body.businessName,
+      body.mobileNumber,
     );
 
     return res

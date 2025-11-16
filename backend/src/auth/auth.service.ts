@@ -18,7 +18,14 @@ export class AuthService {
   ) {}
 
   // Register new user
-  async register(email: string, password: string, name: string) {
+  async register(
+    email: string,
+    password: string,
+    name: string,
+    businessName: string,
+    mobileNumber: string,
+  ) {
+    //console.log('Business Name:', businessName);
     // Check if user exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
@@ -30,7 +37,6 @@ export class AuthService {
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
     // Create user
     const user = await this.prisma.user.create({
       data: {
@@ -39,6 +45,8 @@ export class AuthService {
         name,
         password: hashedPassword,
         role: 'user',
+        businessName,
+        mobileNumber,
       },
     });
 
@@ -140,6 +148,8 @@ export class AuthService {
         name: true,
         role: true,
         picture: true,
+        businessName: true,
+        mobileNumber: true,
         createdAt: true,
         updatedAt: true,
         // password excluded
