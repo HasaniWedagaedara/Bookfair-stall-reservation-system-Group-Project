@@ -1,4 +1,4 @@
-import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
+import ArrowDropDown from "@mui/icons-material/ArrowDropDown";
 import {
   Avatar,
   Box,
@@ -10,16 +10,14 @@ import {
   Typography,
   styled,
   useTheme,
-} from '@mui/material';
-import axios from 'axios';
-import React, {useRef} from 'react';
-import toast, {Toaster} from 'react-hot-toast';
-import {Link, useLocation} from 'react-router-dom';
-import googleIcon from '../../assets/googleIcon.svg';
-import helpIcon from '../../assets/helpIcon.svg';
-import {useScreen} from '../../customHooks/useScreen';
-import {useAuthStore} from '../../store/authStore';
-import getGoogleOAuthURL from '../../utils/getOAuthRedirectUrl';
+} from "@mui/material";
+import axios from "axios";
+import React, { useRef } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import { Link, useLocation } from "react-router-dom";
+import helpIcon from "../../assets/helpIcon.svg";
+import { useScreen } from "../../customHooks/useScreen";
+import { useAuthStore } from "../../store/authStore";
 
 const NavContainer = styled(Box)`
   display: flex;
@@ -67,7 +65,7 @@ const ProfileContainer = styled(Box)`
   border-radius: 8px;
   cursor: pointer;
   &:hover {
-    border: 0.5px solid ${({theme}) => theme.palette.primary.main};
+    border: 0.5px solid ${({ theme }) => theme.palette.primary.main};
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
   }
 `;
@@ -80,7 +78,7 @@ const LinkContainer = styled(Link)`
 export default function Navbar() {
   const currentScreen = useScreen();
   const theme = useTheme();
-  const {isAuth, user, setIsAuth, setUser} = useAuthStore();
+  const { isAuth, user, setIsAuth, setUser } = useAuthStore();
   const location = useLocation();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -98,6 +96,9 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
+    // Close menu first
+    setAnchorEl(null);
+
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_SERVER_URL}/auth/logout`,
@@ -107,42 +108,68 @@ export default function Navbar() {
       );
 
       if (response.status === 200) {
+        // Clear auth store
         setIsAuth(false);
         setUser(null);
-        window.location.replace('/');
+
+        // Clear any stored data in localStorage
+        localStorage.removeItem("user");
+        localStorage.removeItem("authToken");
+
+        // Show success message
+        toast.success("Logged out successfully", {
+          position: "top-center",
+          duration: 2000,
+        });
+
+        // Redirect after showing toast
+        setTimeout(() => {
+          window.location.replace("/");
+        }, 500);
       }
     } catch (error) {
-      toast.error('Logout failed. Please try again', {
-        position: 'top-center',
-        duration: 3000,
+      console.error("Logout error:", error);
+
+      // Even if backend fails, clear frontend state
+      setIsAuth(false);
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
+
+      toast.error("Session ended", {
+        position: "top-center",
+        duration: 2000,
       });
+
+      setTimeout(() => {
+        window.location.replace("/");
+      }, 500);
     }
-    setAnchorEl(null);
   };
 
   const profile_container = useRef<HTMLDivElement | null>(null);
 
   return (
     <NavContainer>
-      {location.pathname.startsWith('/admin') && user?.role === 'admin' ? (
+      {location.pathname.startsWith("/admin") && user?.role === "admin" ? (
         <Stack>
           <Typography
             variant="h1"
             color={theme.palette.text.primary}
-            fontSize={{xs: '1.5rem', md: '2.5rem'}}
+            fontSize={{ xs: "1.5rem", md: "2.5rem" }}
           >
             Manage Buses
           </Typography>
           <Typography
-            paddingTop={{sm: 0, md: 2}}
+            paddingTop={{ sm: 0, md: 2 }}
             variant="h6"
             color={theme.palette.secondary.light}
           >
-            {new Date().toLocaleDateString('en-UK', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
+            {new Date().toLocaleDateString("en-UK", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
             })}
           </Typography>
         </Stack>
@@ -150,11 +177,11 @@ export default function Navbar() {
         <Typography
           variant="h1"
           color={theme.palette.primary.main}
-          fontSize={{xs: '1.25rem', md: '2.5rem'}}
+          fontSize={{ xs: "1.25rem", md: "2.5rem" }}
         >
           <LinkContainer
             to="/"
-            style={{textDecoration: 'none', color: 'inherit'}}
+            style={{ textDecoration: "none", color: "inherit" }}
           >
             CIBF - Stall Booking
           </LinkContainer>
@@ -162,12 +189,12 @@ export default function Navbar() {
       )}
       <Box
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1.5rem',
+          display: "flex",
+          alignItems: "center",
+          gap: "1.5rem",
         }}
       >
-        <HelpButton display={{xs: 'none', md: 'flex'}}>
+        <HelpButton display={{ xs: "none", md: "flex" }}>
           <img src={helpIcon} alt="help" />
           <Typography variant="h6" color={theme.palette.common.black}>
             Help
@@ -175,31 +202,32 @@ export default function Navbar() {
         </HelpButton>
 
         {!isAuth ? (
-          <GoogleButton variant="outlined" href={getGoogleOAuthURL()}>
-            <img src={googleIcon} alt="google" />
-            <Typography variant="h6" color={theme.palette.common.black}>
-              Login with Google
-            </Typography>
-          </GoogleButton>
+          <LinkContainer to="/login" sx={{ padding: 0 }}>
+            <GoogleButton variant="outlined">
+              <Typography variant="h6" color={theme.palette.common.black}>
+                Login
+              </Typography>
+            </GoogleButton>
+          </LinkContainer>
         ) : (
           <ProfileContainer
             id="basic-button"
-            aria-controls={open ? 'basic-menu' : undefined}
+            aria-controls={open ? "basic-menu" : undefined}
             aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
+            aria-expanded={open ? "true" : undefined}
             onClick={openmenu}
             sx={{
-              cursor: 'pointer',
-              border: currentScreen === 'xs' ? 'none' : '0.5px solid #4f4f4f',
+              cursor: "pointer",
+              border: currentScreen === "xs" ? "none" : "0.5px solid #4f4f4f",
             }}
             ref={profile_container}
           >
-            {currentScreen === 'xs' ? (
+            {currentScreen === "xs" ? (
               <IconButton>
                 <Avatar
                   alt={user?.name}
                   src={user?.picture}
-                  sx={{width: '1.8rem', height: '1.8rem'}}
+                  sx={{ width: "1.8rem", height: "1.8rem" }}
                 />
                 {<ArrowDropDown />}
               </IconButton>
@@ -208,13 +236,13 @@ export default function Navbar() {
                 <Avatar
                   alt={user?.name}
                   src={user?.picture}
-                  sx={{width: '1.5rem', height: '1.5rem', marginLeft: '.5em'}}
+                  sx={{ width: "1.5rem", height: "1.5rem", marginLeft: ".5em" }}
                 />
                 <Typography
                   variant="h6"
                   color={theme.palette.common.black}
                   padding="0.5rem 1rem"
-                  textTransform={'none'}
+                  textTransform={"none"}
                 >
                   Hi, {user?.name}!
                 </Typography>
@@ -227,10 +255,10 @@ export default function Navbar() {
               open={open}
               onClose={closeMenu}
               MenuListProps={{
-                'aria-labelledby': 'basic-button',
+                "aria-labelledby": "basic-button",
                 style: {
                   width:
-                    currentScreen === 'xs'
+                    currentScreen === "xs"
                       ? 130
                       : profile_container.current?.offsetWidth || 0,
                 },
@@ -246,8 +274,8 @@ export default function Navbar() {
           </ProfileContainer>
         )}
 
-        {!location.pathname.startsWith('/admin') && user?.role === 'admin' ? (
-          currentScreen === 'lg' || currentScreen === 'xl' ? (
+        {!location.pathname.startsWith("/admin") && user?.role === "admin" ? (
+          currentScreen === "lg" || currentScreen === "xl" ? (
             <ManageButton>
               <Typography variant="h6" color={theme.palette.common.black}>
                 Manage Buses
