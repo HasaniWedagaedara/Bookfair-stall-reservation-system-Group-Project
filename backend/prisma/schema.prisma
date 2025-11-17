@@ -8,16 +8,51 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  password  String
-  role      String   @default("user")
-  picture   String?
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  password     String
+  role         String   @default("user")
+  picture      String?
   businessName String?
-  mobileNumber    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  mobileNumber String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reservations Reservation[] @relation("UserReservations")
 
   @@map("users")
+}
+
+model Stall {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  size        String
+  location    String
+  dimensions  String
+  pricePerDay Float
+  status      String   @default("AVAILABLE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  reservations Reservation[] @relation("StallReservations")
+
+  @@map("stalls")
+}
+
+model Reservation {
+  id              String   @id @default(uuid())
+  userId          String
+  stallId         String
+  reservationDate DateTime @default(now())
+  status          String   @default("PENDING")
+  qrCode          String?  @unique
+  totalAmount     Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user  User  @relation("UserReservations", fields: [userId], references: [id], onDelete: Cascade)
+  stall Stall @relation("StallReservations", fields: [stallId], references: [id], onDelete: Cascade)
+
+  @@map("reservations")
 }

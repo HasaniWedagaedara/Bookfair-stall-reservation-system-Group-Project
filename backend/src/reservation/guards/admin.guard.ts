@@ -26,7 +26,6 @@ export class AdminGuard implements CanActivate {
       throw new UnauthorizedException('Not authenticated');
     }
 
-    // Check if user is admin
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.id },
     });
