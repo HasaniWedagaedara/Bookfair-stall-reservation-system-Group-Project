@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Container,
   Box,
@@ -8,68 +8,19 @@ import {
   Link,
   Paper,
   Avatar,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { useNavigate } from "react-router-dom";
+} from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:3000/auth/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Important for cookies
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      // Check content type before parsing JSON
-      const contentType = response.headers.get("content-type");
-
-      let data;
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        throw new Error("Unexpected response from server");
-      }
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      console.log("Login successful:", data);
-
-      // Store user info in localStorage (optional)
-      localStorage.setItem("user", JSON.stringify(data));
-
-      // Redirect to dashboard or pricing
-      navigate("/pricing");
-    } catch (err) {
-      console.error("Login error:", err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Login failed. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleLogin = async () => {
+    console.log("Logging in...", { email, password });
+    localStorage.setItem('authToken', 'mock-jwt-token-for-testing');
+    navigate('/pricing'); 
   };
 
   return (
@@ -79,26 +30,19 @@ const LoginPage = () => {
         sx={{
           marginTop: 8,
           padding: 4,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           borderRadius: 2,
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Login
         </Typography>
-
-        {error && (
-          <Alert severity="error" sx={{ mt: 2, width: "100%" }}>
-            {error}
-          </Alert>
-        )}
-
-        <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleLogin}>
+        <Box component="form" noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -108,10 +52,7 @@ const LoginPage = () => {
             name="email"
             autoComplete="email"
             autoFocus
-            type="email"
-            value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
           />
           <TextField
             margin="normal"
@@ -122,18 +63,15 @@ const LoginPage = () => {
             type="password"
             id="password"
             autoComplete="current-password"
-            value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
           />
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            disabled={loading}
+            onClick={handleLogin}
           >
-            {loading ? <CircularProgress size={24} /> : "Login"}
+            Login
           </Button>
           <Box textAlign="center">
             <Link href="/register" variant="body2">
