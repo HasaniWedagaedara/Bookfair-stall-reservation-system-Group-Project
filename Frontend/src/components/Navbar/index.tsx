@@ -200,7 +200,7 @@ export default function Navbar() {
             Help
           </Typography>
         </HelpButton>
-
+       
         {!isAuth ? (
           <LinkContainer to="/login" sx={{ padding: 0 }}>
             <GoogleButton variant="outlined">
@@ -273,7 +273,6 @@ export default function Navbar() {
             </Menu>
           </ProfileContainer>
         )}
-
         {!location.pathname.startsWith("/admin") && user?.role === "admin" ? (
           currentScreen === "lg" || currentScreen === "xl" ? (
             <ManageButton>

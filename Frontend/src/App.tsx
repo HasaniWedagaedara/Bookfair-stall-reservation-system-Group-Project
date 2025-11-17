@@ -23,9 +23,41 @@ import RefundPolicy from "./pages/RefundPolicy/RefundPolicy";
 import ContactUs from "./pages/ContactUs/contactUs";
 import AboutUs from "./pages/AboutUs/AboutUs";
 import FloorMapPage from "./pages/FloorMap/floormap";
+import { useAuthStore } from "./store/authStore";
+import { useEffect } from "react";
+import axios from "axios";
 
 function App() {
   const location = useLocation();
+  const { setIsAuth, setUser } = useAuthStore();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/auth/me`,
+          {
+            withCredentials: true,
+          }
+        );
+
+        if (response.status === 200 && response.data) {
+          setIsAuth(true);
+          setUser(response.data);
+          console.log('User authenticated:', response.data);
+        }
+      } catch (error) {
+        // User not logged in, clear any stale state
+        console.log('Not authenticated');
+        setIsAuth(false);
+        setUser(null);
+        localStorage.removeItem('user');
+      }
+    };
+
+    checkAuth();
+  }, [setIsAuth, setUser]);
+  
   return (
     <>
       <ThemeProvider theme={theme}>

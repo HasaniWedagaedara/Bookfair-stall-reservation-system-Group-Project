@@ -14,56 +14,70 @@ import {
 } from "@mui/material";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore"; // ← Import auth store
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { setIsAuth, setUser } = useAuthStore(); // ← Get setters from store
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [businessName, setBusinessName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    const payload = {
-      email,
-      password,
-      name,
-      businessName,
-      mobileNumber: phone,
-    };
-
-    console.log("Sending registration data:", payload);
-
     try {
       const response = await fetch("http://localhost:5000/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          businessName,
+          mobileNumber,
+        }),
       });
 
-      console.log("Response status:", response.status);
+      const contentType = response.headers.get("content-type");
 
-      if (!response.ok) {
-        const data = await response.json();
-        console.error("Registration error:", data);
-        setError(data.message || "Registration failed");
-        setLoading(false);
-        return;
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        throw new Error("Unexpected response from server");
       }
 
-      const user = await response.json();
-      console.log("Registered successfully:", user);
-      navigate("/login");
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      console.log("Registration successful:", data);
+
+      // ✅ Set auth state - THIS IS CRITICAL
+      setIsAuth(true);
+      setUser(data);
+
+      localStorage.setItem("user", JSON.stringify(data));
+
+      navigate("/dashboard");
     } catch (err) {
-      console.error("Registration exception:", err);
-      setError("Registration failed. Please try again.");
+      console.error("Registration error:", err);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -108,6 +122,7 @@ const RegisterPage = () => {
                 id="name"
                 label="Full Name"
                 name="name"
+                autoComplete="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loading}
@@ -132,6 +147,7 @@ const RegisterPage = () => {
                 id="email"
                 label="Email Address"
                 name="email"
+                autoComplete="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -142,12 +158,13 @@ const RegisterPage = () => {
               <TextField
                 required
                 fullWidth
-                name="phone"
-                label="Phone Number"
-                id="phone"
+                name="mobileNumber"
+                label="Mobile Number"
+                id="mobileNumber"
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1234567890"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
                 disabled={loading}
               />
             </Grid>
@@ -159,6 +176,7 @@ const RegisterPage = () => {
                 label="Password"
                 type="password"
                 id="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}

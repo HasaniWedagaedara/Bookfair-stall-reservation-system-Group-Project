@@ -13,9 +13,11 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore"; // ← Import auth store
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { setIsAuth, setUser } = useAuthStore(); // ← Get setters from store
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,14 +34,13 @@ const LoginPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Important for cookies
+        credentials: "include",
         body: JSON.stringify({
           email,
           password,
         }),
       });
 
-      // Check content type before parsing JSON
       const contentType = response.headers.get("content-type");
 
       let data;
@@ -55,6 +56,10 @@ const LoginPage = () => {
 
       console.log("Login successful:", data);
 
+      // ✅ Set auth state - THIS IS CRITICAL
+      setIsAuth(true);
+      setUser(data);
+
       // Store user info in localStorage (optional)
       localStorage.setItem("user", JSON.stringify(data));
 
@@ -62,7 +67,6 @@ const LoginPage = () => {
       navigate("/pricing");
     } catch (err) {
       console.error("Login error:", err);
-      console.log("Login error:", err);
       if (err instanceof Error) {
         setError(err.message);
       } else {

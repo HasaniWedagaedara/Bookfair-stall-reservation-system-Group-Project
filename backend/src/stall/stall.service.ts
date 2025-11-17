@@ -11,7 +11,7 @@ import { randomUUID } from 'crypto';
 export class StallService {
   constructor(private prisma: PrismaService) {}
 
- //admin only
+  //admin only
   async createStall(
     name: string,
     size: string,
@@ -47,7 +47,7 @@ export class StallService {
     return stall;
   }
 
-//anyone can view
+  //anyone can view
   async getAllStalls() {
     const stalls = await this.prisma.stall.findMany({
       orderBy: { name: 'asc' },
@@ -59,7 +59,7 @@ export class StallService {
     };
   }
 
- //anyone can view
+  //anyone can view
   async getAvailableStalls() {
     const stalls = await this.prisma.stall.findMany({
       where: { status: 'AVAILABLE' },
@@ -72,7 +72,7 @@ export class StallService {
     };
   }
 
- //anyone can view
+  //anyone can view
   async getStallsBySize(size: string) {
     const validSizes = ['SMALL', 'MEDIUM', 'LARGE'];
     if (!validSizes.includes(size.toUpperCase())) {
@@ -91,7 +91,7 @@ export class StallService {
     };
   }
 
- //public
+  //public
   async getStallById(id: string) {
     const stall = await this.prisma.stall.findUnique({
       where: { id },
@@ -104,7 +104,7 @@ export class StallService {
     return stall;
   }
 
- //admin only
+  //admin only
   async updateStall(
     id: string,
     name?: string,
@@ -148,7 +148,7 @@ export class StallService {
       }
     }
 
-    // Build update data 
+    // Build update data
     const updateData: any = {};
     if (name) updateData.name = name;
     if (size) updateData.size = size.toUpperCase();
@@ -165,7 +165,7 @@ export class StallService {
     return updatedStall;
   }
 
-//admin only
+  //admin only
   async deleteStall(id: string) {
     const stall = await this.prisma.stall.findUnique({
       where: { id },
@@ -182,7 +182,7 @@ export class StallService {
     return { message: 'Stall deleted successfully' };
   }
 
- //admin only
+  //admin only
   async getStallStatistics() {
     const totalStalls = await this.prisma.stall.count();
 

@@ -1,40 +1,67 @@
-import React from 'react';
 import { Button, Container, Grid, Typography } from '@mui/material';
 import PricingCard from './PricingCards';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+interface Stall {
+  id: string;
+  stallName: string;
+  size: string;
+  price: number;
+  status: string;
+  idealFor: string;
+  features: string;
+}
 
 const plans = [
   {
-    title: 'Small Stall',
-    price: 'Rs. 15,000',
-    features: [
-      'Size: 2m x 2m',
-      'Includes one table and two chairs',
-      'Ideal for small publishers or startups',
-    ],
+    title: "Small Stall",
+    price: "Rs. 15,000",
+    size: "2m x 2m",
+    features: "Includes one table and two chairs",
+    idealFor: "small publishers or startups",
   },
   {
-    title: 'Medium Stall',
-    price: 'Rs. 25,000',
-    features: [
-      'Size: 3m x 3m',
-      'Includes two tables and four chairs',
-      'Ideal for mid-sized publishers or vendors',
-    ],
+    title: "Medium Stall",
+    price: "Rs. 25,000",
+    size: "3m x 3m",
+    features: "Includes one table and two chairs",
+    idealFor: "mid-sized publishers or vendors",
   },
   {
-    title: 'Large Stall',
-    price: 'Rs. 40,000',
-    features: [
-      'Size: 4m x 4m',
-      'Includes two tables, six chairs, and electricity access',
-      'Ideal for major publishers or distributors',
-    ],
+    title: "Large Stall",
+    price: "Rs. 40,000",
+    size: "4m x 4m",
+    features: "Includes one table and two chairs",
+    idealFor: "major publishers or distributors",
   },
 ];
 
 const PricingPage = () => {
   const navigate = useNavigate(); // ← call hook here at the top of the component
+  const [stalls, setStalls] = useState<Stall[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStalls = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/stalls/available"
+        ); 
+        setStalls(response.data.stalls);
+      } catch (error) {
+        console.error("Error fetching stalls:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStalls();
+  }, []);
+
+  if (loading) return <Typography align="center">Loading stalls...</Typography>;
+
 
   return (
     <Container sx={{ py: 8 }}>
@@ -42,10 +69,11 @@ const PricingPage = () => {
         Stall Pricing Plans
       </Typography>
       <Typography variant="h5" align="center" color="textSecondary" paragraph>
-        Choose the stall size that best fits your needs at the Colombo International Book Fair.
+        Choose the stall size that best fits your needs at the Colombo
+        International Book Fair.
       </Typography>
       <Grid container spacing={4} justifyContent="center">
-        {plans.map((plan, index) => (
+        {stalls.map((stall, index) => (
           <Grid
             item
             key={index}
@@ -54,26 +82,27 @@ const PricingPage = () => {
             md={3}
             style={{
               transform:
-                index === Math.floor(plans.length / 2) ? 'scale(1.1)' : 'none',
-              transition: 'transform 0.3s ease-in-out',
+                index === Math.floor(stalls.length / 2) ? "scale(1.1)" : "none",
+              transition: "transform 0.3s ease-in-out",
             }}
           >
             <PricingCard
-              title={plan.title}
-              price={plan.price}
-              features={plan.features}
+              stallName={stall.stallName}
+              price={`Rs. ${stall.price.toLocaleString()}`}
+              Size={stall.size}
+              features={stall.features}
+              idealFor={stall.idealFor}
             />
           </Grid>
         ))}
       </Grid>
 
-      {/* Button to navigate to Floor Map */}
       <Grid container justifyContent="center" sx={{ mt: 6 }}>
         <Button
           variant="contained"
           color="secondary"
           size="large"
-          onClick={() => navigate('/map')} // ← use navigate function here
+          onClick={() => navigate("/map")} // ← use navigate function here
         >
           View Floor Map
         </Button>

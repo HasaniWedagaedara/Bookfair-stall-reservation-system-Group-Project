@@ -18,7 +18,7 @@ import { AdminGuard } from './guards/admin.guard';
 export class StallController {
   constructor(private stallService: StallService) {}
 
-///create stall - admin only
+  ///create stall - admin only
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post()
   @HttpCode(201)
@@ -41,32 +41,32 @@ export class StallController {
     );
   }
 
-//get all stalls - public
+  //get all stalls - public
   @Get()
   async getAllStalls() {
     return await this.stallService.getAllStalls();
   }
 
- ///get available stalls - public
+  ///get available stalls - public
   @Get('available')
   async getAvailableStalls() {
     return await this.stallService.getAvailableStalls();
   }
 
-//GET /stalls/size?type=SMALL - public
+  //GET /stalls/size?type=SMALL - public
   @Get('size')
   async getStallsBySize(@Query('type') type: string) {
     return await this.stallService.getStallsBySize(type);
   }
 
- //get stall statistics - admin only
+  //get stall statistics - admin only
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get('statistics')
   async getStallStatistics() {
     return await this.stallService.getStallStatistics();
   }
 
-//get stall by id - public
+  //get stall by id - public
   @Get(':id')
   async getStallById(@Param('id') id: string) {
     return await this.stallService.getStallById(id);
@@ -98,7 +98,7 @@ export class StallController {
     );
   }
 
- //delete stall - admin only
+  //delete stall - admin only
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')
   async deleteStall(@Param('id') id: string) {

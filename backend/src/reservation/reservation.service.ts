@@ -11,8 +11,7 @@ import { randomUUID } from 'crypto';
 export class ReservationService {
   constructor(private prisma: PrismaService) {}
 
-  
-// Create a reservation (book a stall)
+  // Create a reservation (book a stall)
 
   async createReservation(
     userId: string,
@@ -91,9 +90,8 @@ export class ReservationService {
     return reservation;
   }
 
+  // Get user's own reservations
 
-   // Get user's own reservations
-  
   async getUserReservations(userId: string) {
     const reservations = await this.prisma.reservation.findMany({
       where: { userId: userId },
@@ -109,9 +107,8 @@ export class ReservationService {
     };
   }
 
- 
-   // Get single reservation by ID
-   
+  // Get single reservation by ID
+
   async getReservationById(reservationId: string, userId: string) {
     const reservation = await this.prisma.reservation.findUnique({
       where: { id: reservationId },
@@ -187,9 +184,8 @@ export class ReservationService {
     };
   }
 
+  //Get all reservations (Admin only)
 
-   //Get all reservations (Admin only)
-   
   async getAllReservations() {
     const reservations = await this.prisma.reservation.findMany({
       include: {
@@ -213,9 +209,8 @@ export class ReservationService {
     };
   }
 
-  
-//Get reservation statistics (Admin only)
-  
+  //Get reservation statistics (Admin only)
+
   async getReservationStatistics() {
     const totalReservations = await this.prisma.reservation.count();
 
