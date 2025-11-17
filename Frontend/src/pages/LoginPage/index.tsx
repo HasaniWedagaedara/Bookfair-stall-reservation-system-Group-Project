@@ -27,7 +27,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/auth/user/login", {
+      const response = await fetch("http://localhost:5000/auth/user/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -62,6 +62,7 @@ const LoginPage = () => {
       navigate("/pricing");
     } catch (err) {
       console.error("Login error:", err);
+      console.log("Login error:", err);
       if (err instanceof Error) {
         setError(err.message);
       } else {

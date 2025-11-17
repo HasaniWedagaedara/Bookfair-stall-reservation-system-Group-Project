@@ -31,7 +31,7 @@ export class AdminGuard implements CanActivate {
       where: { id: user.id },
     });
 
-    if (String(dbUser?.role) !== 'admin') {
+    if (dbUser?.role !== 'admin') {
       throw new ForbiddenException('Admin access required');
     }
 
