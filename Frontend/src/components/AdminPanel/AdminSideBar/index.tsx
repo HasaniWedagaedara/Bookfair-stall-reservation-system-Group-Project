@@ -32,7 +32,7 @@ export default function SideBar() {
     navigate('/admin/dashboard');
   };
   const OpenSchedule = () => {
-    navigate('/admin/schedule');
+    navigate('/admin/floorMap');
   };
 
   const LinkContainer = styled(Link)`

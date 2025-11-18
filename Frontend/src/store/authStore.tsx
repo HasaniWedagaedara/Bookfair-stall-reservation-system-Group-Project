@@ -14,7 +14,9 @@ interface User {
   email: string;
   name: string;
   picture: string;
-  role: string;
+  role: "admin" | "user";
+  businessName?: string;
+  mobileNumber?: string;
 }
 
 export const useAuthStore = create<AuthStore>(set => ({

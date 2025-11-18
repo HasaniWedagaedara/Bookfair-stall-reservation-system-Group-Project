@@ -5,7 +5,7 @@ import Chip from '@mui/material/Chip/Chip';
 import busIcon from '../../../assets/bus-icon.svg';
 import arrowIcon from '../../../assets/arrowIcon.svg';
 import scheduleIcon from '../../../assets/schedule-icon.svg';
-import {RecentOrdersProps} from '../../../pages/AdminDashBoard';
+import {RecentOrdersProps} from '../../../pages/admin/adminDashboard';
 import {useState} from 'react';
 import OrderDetailsCard from '../OrderDetailsCard';
 

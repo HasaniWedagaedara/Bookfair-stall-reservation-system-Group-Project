@@ -151,42 +151,18 @@ export default function Navbar() {
 
   return (
     <NavContainer>
-      {location.pathname.startsWith("/admin") && user?.role === "admin" ? (
-        <Stack>
-          <Typography
-            variant="h1"
-            color={theme.palette.text.primary}
-            fontSize={{ xs: "1.5rem", md: "2.5rem" }}
-          >
-            Manage Buses
-          </Typography>
-          <Typography
-            paddingTop={{ sm: 0, md: 2 }}
-            variant="h6"
-            color={theme.palette.secondary.light}
-          >
-            {new Date().toLocaleDateString("en-UK", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </Typography>
-        </Stack>
-      ) : (
-        <Typography
-          variant="h1"
-          color={theme.palette.primary.main}
-          fontSize={{ xs: "1.25rem", md: "2.5rem" }}
+      <Typography
+        variant="h1"
+        color={theme.palette.primary.main}
+        fontSize={{ xs: "1.25rem", md: "2.5rem" }}
+      >
+        <LinkContainer
+          to="/"
+          style={{ textDecoration: "none", color: "inherit" }}
         >
-          <LinkContainer
-            to="/"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            CIBF - Stall Booking
-          </LinkContainer>
-        </Typography>
-      )}
+          CIBF - Stall Booking
+        </LinkContainer>
+      </Typography>
       <Box
         sx={{
           display: "flex",
@@ -194,13 +170,19 @@ export default function Navbar() {
           gap: "1.5rem",
         }}
       >
-        <HelpButton display={{ xs: "none", md: "flex" }}>
-          <img src={helpIcon} alt="help" />
-          <Typography variant="h6" color={theme.palette.common.black}>
-            Help
-          </Typography>
-        </HelpButton>
-       
+        <LinkContainer
+          to="/contactus"
+          style={{ textDecoration: "none" }}
+          sx={{ padding: 0 }}
+        >
+          <HelpButton display={{ xs: "none", md: "flex" }}>
+            <img src={helpIcon} alt="help" />
+            <Typography variant="h6" color={theme.palette.common.black}>
+              Help
+            </Typography>
+          </HelpButton>
+        </LinkContainer>
+
         {!isAuth ? (
           <LinkContainer to="/login" sx={{ padding: 0 }}>
             <GoogleButton variant="outlined">

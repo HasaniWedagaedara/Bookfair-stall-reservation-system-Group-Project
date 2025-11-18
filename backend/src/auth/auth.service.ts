@@ -71,9 +71,9 @@ export class AuthService {
     }
 
     // Check if user is trying to login as admin
-    if (user.role === 'admin') {
-      throw new ForbiddenException('Please use admin login page');
-    }
+    //if (user.role === 'admin') {
+    //  throw new ForbiddenException('Please use admin login page');
+    //}
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -180,7 +180,6 @@ export class AuthService {
 
   verifyToken(token: string): { id: string; email: string } {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const decoded = this.jwtService.verify(token);
       return decoded as { id: string; email: string };
     } catch {

@@ -63,8 +63,15 @@ const LoginPage = () => {
       // Store user info in localStorage (optional)
       localStorage.setItem("user", JSON.stringify(data));
 
-      // Redirect to dashboard or pricing
-      navigate("/pricing");
+      // Navigate based on role
+      if(data.role === "admin") {
+        navigate("/admin/dashboard");
+        return;
+      }
+      else {
+        navigate("/pricing");
+      }
+      
     } catch (err) {
       console.error("Login error:", err);
       if (err instanceof Error) {

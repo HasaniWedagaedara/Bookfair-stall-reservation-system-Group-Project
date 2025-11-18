@@ -5,23 +5,23 @@ import GoogleAuthLogin from "./components/GoogleAuthLogin";
 import ValidateAuth from "./components/ValidateAuth";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from "./pages/userAdmin/loginPage";
 import RegisterPage from "./pages/RegisterPage";
-import LandingPage from "./pages/LandingPage";
+import LandingPage from "./pages/userAdmin/landingPage";
 import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
 import Demopage from "./pages/DemoPage/demopage";
 import { Toaster } from "react-hot-toast";
-import AdminDashBoard from "./pages/AdminDashBoard";
-import ProfilePage from "./pages/Profile";
-import AdminSchedule from "./pages/AdminSchedule";
+import AdminDashBoard from "./pages/admin/adminDashboard";
+import ProfilePage from "./pages/userAdmin/Profile";
+import AdminFloorMap from "./pages/admin/adminFloorMap";
 import NotFoundPage from "./pages/NotFoundPage";
-import PricingPage from "./pages/PricingPage/PricingPage";
+import PricingPage from "./pages/user/PricingPage/PricingPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndconditions/TermsAndConditions";
 import RefundPolicy from "./pages/RefundPolicy/RefundPolicy";
-import ContactUs from "./pages/ContactUs/contactUs";
-import AboutUs from "./pages/AboutUs/AboutUs";
+import ContactUs from "./pages/userAdmin/contactUs";
+import AboutUs from "./pages/userAdmin/AboutUs";
 import FloorMapPage from "./pages/FloorMap/floormap";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
@@ -88,7 +88,7 @@ function App() {
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/admin/dashboard" element={<AdminDashBoard />} />
-            <Route path="/admin/schedule" element={<AdminSchedule />} />
+            <Route path="/admin/floorMap" element={<AdminFloorMap/>} />
             <Route path="/demo-Page" element={<Demopage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />
