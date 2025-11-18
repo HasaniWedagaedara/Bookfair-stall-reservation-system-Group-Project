@@ -6,7 +6,7 @@ import ValidateAuth from "./components/ValidateAuth";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import LoginPage from "./pages/userAdmin/loginPage";
-import RegisterPage from "./pages/RegisterPage";
+import RegisterPage from "./pages/user/registerPage";
 import LandingPage from "./pages/userAdmin/landingPage";
 import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
@@ -15,11 +15,10 @@ import { Toaster } from "react-hot-toast";
 import AdminDashBoard from "./pages/admin/adminDashboard";
 import ProfilePage from "./pages/userAdmin/Profile";
 import AdminFloorMap from "./pages/admin/adminFloorMap";
-import NotFoundPage from "./pages/NotFoundPage";
 import PricingPage from "./pages/user/PricingPage/PricingPage";
-import PrivacyPolicy from "./pages/PrivacyPolicy/PrivacyPolicy";
-import TermsAndConditions from "./pages/TermsAndconditions/TermsAndConditions";
-import RefundPolicy from "./pages/RefundPolicy/RefundPolicy";
+import PrivacyPolicy from "./pages/userAdmin/PrivacyPolicy";
+import TermsAndConditions from "./pages/userAdmin/TermsAndConditions";
+import RefundPolicy from "./pages/userAdmin/RefundPolicy";
 import ContactUs from "./pages/userAdmin/contactUs";
 import AboutUs from "./pages/userAdmin/AboutUs";
 import FloorMapPage from "./pages/FloorMap/floormap";
@@ -91,7 +90,6 @@ function App() {
             <Route path="/admin/floorMap" element={<AdminFloorMap/>} />
             <Route path="/demo-Page" element={<Demopage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="*" element={<NotFoundPage />} />
           </Routes>
           {!location.pathname.startsWith("/admin") &&
             location.pathname !== "/login" &&
