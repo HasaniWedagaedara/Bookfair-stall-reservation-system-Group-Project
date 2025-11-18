@@ -1,113 +1,160 @@
-import {Box, Typography, useTheme} from '@mui/material';
-import AdminLayout from '../../components/AdminPanel/AdminLayout';
-import RecentOrderCard from '../../components/AdminPanel/RecentOrderCard';
-import {useEffect, useState} from 'react';
-import axios from 'axios';
-import EmptyModal from '../../components/Custom Empty Modal';
-import NotFound from '../../assets/NotFound.svg';
+import React from 'react';
+import {
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+} from '@mui/material';
 
-export type RecentOrdersProps = {
-  orderId: string;
-  ammount: number;
-  receipt: string;
-  buyer: string;
-  from: string;
-  to: string;
-  time: string;
-  passengers: string[];
-  email: string;
-  createdAt: Date;
+// --- Mock Data ---
+const mockStats = {
+  reservations: {
+    revenue: 1250000,
+    confirmed: 35,
+    cancelled: 4,
+  },
+  stalls: {
+    total: 50,
+    available: 15,
+  },
 };
 
-const Admin = () => {
-  const [orders, setOrders] = useState<RecentOrdersProps[]>([]);
-  const theme = useTheme();
+const mockReservations = [
+  {
+    id: 'res-1',
+    status: 'CONFIRMED',
+    totalAmount: 40000,
+    createdAt: '2025-11-10T09:00:00Z',
+    user: {
+      name: 'Sajani Perera',
+      email: 'sajani@example.com',
+      businessName: 'Bookworm Creations',
+    },
+    stall: { name: 'E1' },
+  },
+  {
+    id: 'res-2',
+    status: 'PENDING',
+    totalAmount: 15000,
+    createdAt: '2025-11-11T14:30:00Z',
+    user: {
+      name: 'Hasani Wedagedara',
+      email: 'hasani@example.com',
+      businessName: 'Readers Corner',
+    },
+    stall: { name: 'A3' },
+  },
+  {
+    id: 'res-3',
+    status: 'CANCELLED',
+    totalAmount: 25000,
+    createdAt: '2025-11-09T11:00:00Z',
+    user: {
+      name: 'Telana Samarasekara',
+      email: 'telana@example.com',
+      businessName: 'Samara Books',
+    },
+    stall: { name: 'B2' },
+  },
+];
+// ---
 
-  useEffect(() => {
-    const getRecentOrders = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_SERVER_URL}/orders/recent`,
-          {
-            withCredentials: true,
-          }
-        );
-        if (res.status === 200 && res.data) {
-          setOrders(res.data as RecentOrdersProps[]);
-        }
-      } catch (error) {
-        setOrders([]);
-      }
-    };
-    getRecentOrders();
-  }, []);
+// Helper component for stat cards
+const StatCard = ({ title, value, color }: { title: string; value: string | number; color?: string }) => (
+  <Paper sx={{ p: 2, textAlign: 'center', height: '100%' }}>
+    <Typography variant="h6" color={color || 'text.secondary'}>{title}</Typography>
+    <Typography variant="h4" fontWeight={600}>{value}</Typography>
+  </Paper>
+);
+
+const AdminDashBoard = () => {
   return (
-    <>
-      <AdminLayout>
-        <Box
-          display="flex"
-          padding=".7rem"
-          borderRadius="16px"
-          gap="1.5rem"
-          sx={{
-            backgroundColor: '#FFF2CB',
-            maxWidth: '250px',
-            border: '3px solid #FBBC05',
-          }}
-          alignItems="center"
-          justifyContent="space-around"
-          marginBottom="1.5rem"
-        >
-          <Typography
-            component="div"
-            fontSize={{xs: '.5rem', sm: '1rem', md: '1.2rem'}}
-            fontWeight="bold"
-            color={theme.palette.primary.main}
-            textAlign="center"
-          >
-            Tickets <br /> Ordered Today
-          </Typography>
-          <Typography
-            component="div"
-            fontSize={{xs: '1.2rem', sm: '1.5rem', md: '2rem'}}
-            fontWeight="bold"
-            color={theme.palette.primary.main}
-          >
-            {orders?.length}
-          </Typography>
-        </Box>
-        {orders.length !== 0 ? (
-          <Typography
-            component="div"
-            fontSize={{xs: '1rem', sm: '1.2rem', md: '1.5rem'}}
-            fontWeight="bold"
-            color={theme.palette.secondary.light}
-          >
-            Recent Orders
-          </Typography>
-        ) : (
-          <>
-            <Typography
-              component="div"
-              fontSize={{xs: '1rem', sm: '1.2rem', md: '1.5rem'}}
-              fontWeight="bold"
-              color={theme.palette.secondary.light}
-            >
-              Recent Orders
-            </Typography>
-            <EmptyModal
-              img={NotFound}
-              title="No recent orders found!"
-              description="Hey! You cannot see any recent orders as there are no recent orders you have done yet. Book tickets to see the expected."
-            />
-          </>
-        )}
-        {orders?.map(order => (
-          <RecentOrderCard key={order.orderId} details={order} />
-        ))}
-      </AdminLayout>
-    </>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+        Admin Dashboard
+      </Typography>
+      
+      {/* --- Statistic Cards --- */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Total Revenue"
+            value={`Rs. ${mockStats.reservations.revenue.toLocaleString()}`}
+            color="primary.main"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Confirmed Reservations"
+            value={mockStats.reservations.confirmed}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Available Stalls"
+            value={`${mockStats.stalls.available} / ${mockStats.stalls.total}`}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Cancelled Bookings"
+            value={mockStats.reservations.cancelled}
+          />
+        </Grid>
+      </Grid>
+      
+      {/* --- Reservations Table --- */}
+      <Typography variant="h5" component="h2" gutterBottom fontWeight={600}>
+        All Reservations
+      </Typography>
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <TableContainer>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>Publisher</TableCell>
+                <TableCell>Business Name</TableCell>
+                <TableCell>Stall</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Date</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {mockReservations.map((res) => (
+                <TableRow hover key={res.id}>
+                  <TableCell>{res.user.name}</TableCell>
+                  <TableCell>{res.user.businessName}</TableCell>
+                  <TableCell>{res.stall.name}</TableCell>
+                  <TableCell>Rs. {res.totalAmount}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={res.status}
+                      color={
+                        res.status === 'CONFIRMED' ? 'success' :
+                        res.status === 'CANCELLED' ? 'error' : 'warning'
+                      }
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {new Date(res.createdAt).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Container>
   );
 };
 
-export default Admin;
+export default AdminDashBoard;

@@ -12,9 +12,10 @@ import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
 import Demopage from "./pages/DemoPage/demopage";
 import { Toaster } from "react-hot-toast";
+import AdminLoginPage from "./pages/AdminLogin";
 import AdminDashBoard from "./pages/AdminDashBoard";
 import ProfilePage from "./pages/Profile";
-import AdminSchedule from "./pages/AdminSchedule";
+import AdminFloorMap from "./pages/AdminFloorMap";
 import NotFoundPage from "./pages/NotFoundPage";
 import PricingPage from "./pages/PricingPage/PricingPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy/PrivacyPolicy";
@@ -55,8 +56,9 @@ function App() {
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/dashboard" element={<AdminDashBoard />} />
-            <Route path="/admin/schedule" element={<AdminSchedule />} />
+            <Route path="/admin/schedule" element={<AdminFloorMap />} />
             <Route path="/demo-Page" element={<Demopage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="*" element={<NotFoundPage />} />
