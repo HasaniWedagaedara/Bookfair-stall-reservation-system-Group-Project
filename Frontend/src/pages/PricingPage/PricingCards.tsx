@@ -11,15 +11,15 @@ import {
 import CheckIcon from '@mui/icons-material/Check';
 
 interface PricingCardProps {
-  title: string;
+  name: string;
   price: string;
   Size: string;
-  chairs: number;
-  tables: number;
+  features: string;
   idealFor: string;
+  dimensions?: string;
 }
 
-const PricingCard: React.FC<PricingCardProps> = ({ title, price, Size, chairs,tables, idealFor }) => {
+const PricingCard: React.FC<PricingCardProps> = ({ name, price, Size, features, idealFor }) => {
   return (
     <Card
       variant="outlined"
@@ -46,7 +46,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ title, price, Size, chairs,ta
             textAlign: "center",
           }}
         >
-          {title}
+          {name}
         </Typography>
         <Typography
           variant="h4"
@@ -65,7 +65,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ title, price, Size, chairs,ta
           <Box display="flex" alignItems="center" mb={1}>
             <CheckIcon sx={{ color: "green", mr: 1 }} />
             <Typography variant="body2">
-              Includes {tables} table and {chairs} chairs
+              {features}
             </Typography>
           </Box>
           <Box display="flex" alignItems="center" mb={1}>

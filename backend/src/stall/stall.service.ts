@@ -17,7 +17,9 @@ export class StallService {
     size: string,
     location: string,
     dimensions: string,
-    pricePerDay: number,
+    price: number,
+    idealFor: string,
+    features: string,
   ) {
     const validSizes = ['SMALL', 'MEDIUM', 'LARGE'];
     if (!validSizes.includes(size.toUpperCase())) {
@@ -39,8 +41,10 @@ export class StallService {
         size: size.toUpperCase(),
         location,
         dimensions,
-        pricePerDay,
+        price,
         status: 'AVAILABLE',
+        idealFor,
+        features,
       },
     });
 
@@ -111,7 +115,7 @@ export class StallService {
     size?: string,
     location?: string,
     dimensions?: string,
-    pricePerDay?: number,
+    price?: number,
     status?: string,
   ) {
     const stall = await this.prisma.stall.findUnique({
@@ -154,7 +158,7 @@ export class StallService {
     if (size) updateData.size = size.toUpperCase();
     if (location) updateData.location = location;
     if (dimensions) updateData.dimensions = dimensions;
-    if (pricePerDay) updateData.pricePerDay = pricePerDay;
+    if (price) updateData.price = price;
     if (status) updateData.status = status.toUpperCase();
 
     const updatedStall = await this.prisma.stall.update({

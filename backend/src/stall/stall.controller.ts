@@ -29,7 +29,9 @@ export class StallController {
       size: string;
       location: string;
       dimensions: string;
-      pricePerDay: number;
+      price: number;
+      idealFor: string;
+      features: string;
     },
   ) {
     return await this.stallService.createStall(
@@ -37,7 +39,9 @@ export class StallController {
       body.size,
       body.location,
       body.dimensions,
-      body.pricePerDay,
+      body.price,
+      body.idealFor,
+      body.features,
     );
   }
 
@@ -83,7 +87,7 @@ export class StallController {
       size?: string;
       location?: string;
       dimensions?: string;
-      pricePerDay?: number;
+      price?: number;
       status?: string;
     },
   ) {
@@ -93,7 +97,7 @@ export class StallController {
       body.size,
       body.location,
       body.dimensions,
-      body.pricePerDay,
+      body.price,
       body.status,
     );
   }

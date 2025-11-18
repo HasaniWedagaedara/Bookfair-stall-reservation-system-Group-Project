@@ -29,7 +29,9 @@ model Stall {
   size         String
   location     String
   dimensions   String
-  pricePerDay  Float
+  price  Float
+  idealFor     String
+  features     String
   status       String        @default("AVAILABLE")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt

@@ -17,7 +17,7 @@ interface Stall {
   id: string;
   name: string;
   size: "SMALL" | "MEDIUM" | "LARGE";
-  pricePerDay: number;
+  price: number;
   status: "AVAILABLE" | "RESERVED" | "MAINTENANCE";
   widthUnits: number;
   heightUnits: number;
@@ -26,11 +26,11 @@ interface Stall {
 }
 
 const mockStallData: Stall[] = [
-  { id: 'uuid-1', name: 'E1', size: 'LARGE', pricePerDay: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 0 },
-  { id: 'uuid-2', name: 'E2', size: 'LARGE', pricePerDay: 40000, status: 'RESERVED', widthUnits: 3, heightUnits: 2, row: 0, col: 3 },
-  { id: 'uuid-3', name: 'E3', size: 'LARGE', pricePerDay: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 6 },
-  { id: 'uuid-4', name: 'A1', size: 'SMALL', pricePerDay: 15000, status: 'AVAILABLE', widthUnits: 1, heightUnits: 1, row: 3, col: 0 },
-  { id: 'uuid-5', name: 'A2', size: 'SMALL', pricePerDay: 15000, status: 'MAINTENANCE', widthUnits: 1, heightUnits: 1, row: 3, col: 1 },
+  { id: 'uuid-1', name: 'E1', size: 'LARGE', price: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 0 },
+  { id: 'uuid-2', name: 'E2', size: 'LARGE', price: 40000, status: 'RESERVED', widthUnits: 3, heightUnits: 2, row: 0, col: 3 },
+  { id: 'uuid-3', name: 'E3', size: 'LARGE', price: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 6 },
+  { id: 'uuid-4', name: 'A1', size: 'SMALL', price: 15000, status: 'AVAILABLE', widthUnits: 1, heightUnits: 1, row: 3, col: 0 },
+  { id: 'uuid-5', name: 'A2', size: 'SMALL', price: 15000, status: 'MAINTENANCE', widthUnits: 1, heightUnits: 1, row: 3, col: 1 },
 ];
 
 const FloorMapPage: React.FC = () => {
@@ -142,7 +142,7 @@ const FloorMapPage: React.FC = () => {
         <DialogContent>
           <DialogContentText>
             <strong>Size:</strong> {selected?.size} <br />
-            <strong>Price:</strong> Rs. {selected?.pricePerDay} <br />
+            <strong>Price:</strong> Rs. {selected?.price} <br />
             <strong>Status:</strong> {selected?.status}
           </DialogContentText>
         </DialogContent>

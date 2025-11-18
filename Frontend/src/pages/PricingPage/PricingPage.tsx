@@ -6,40 +6,15 @@ import axios from 'axios';
 
 interface Stall {
   id: string;
-  stallName: string;
+  name: string;
   size: string;
   price: number;
-  status: string;
   idealFor: string;
   features: string;
 }
 
-const plans = [
-  {
-    title: "Small Stall",
-    price: "Rs. 15,000",
-    size: "2m x 2m",
-    features: "Includes one table and two chairs",
-    idealFor: "small publishers or startups",
-  },
-  {
-    title: "Medium Stall",
-    price: "Rs. 25,000",
-    size: "3m x 3m",
-    features: "Includes one table and two chairs",
-    idealFor: "mid-sized publishers or vendors",
-  },
-  {
-    title: "Large Stall",
-    price: "Rs. 40,000",
-    size: "4m x 4m",
-    features: "Includes one table and two chairs",
-    idealFor: "major publishers or distributors",
-  },
-];
-
 const PricingPage = () => {
-  const navigate = useNavigate(); // ← call hook here at the top of the component
+  const navigate = useNavigate(); 
   const [stalls, setStalls] = useState<Stall[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +62,7 @@ const PricingPage = () => {
             }}
           >
             <PricingCard
-              stallName={stall.stallName}
+              name={stall.name}
               price={`Rs. ${stall.price.toLocaleString()}`}
               Size={stall.size}
               features={stall.features}
