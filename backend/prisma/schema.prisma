@@ -52,6 +52,31 @@ model Reservation {
   updatedAt       DateTime @updatedAt
   stall           Stall    @relation("StallReservations", fields: [stallId], references: [id], onDelete: Cascade)
   user            User     @relation("UserReservations", fields: [userId], references: [id], onDelete: Cascade)
+  genres          ReservationGenre[]
 
   @@map("reservations")
+}
+
+model Genre {
+  id          String             @id @default(uuid())
+  name        String             @unique  
+  description String?
+  createdAt   DateTime           @default(now())
+  
+  reservations ReservationGenre[]
+  
+  @@map("genres")
+}
+
+// Junction table for Reservation and Genre (many-to-many)
+model ReservationGenre {
+  id            String      @id @default(uuid())
+  reservationId String
+  genreId       String
+  
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  genre         Genre       @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  
+  @@unique([reservationId, genreId])
+  @@map("reservation_genres")
 }
