@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore"; // ← Import auth store
+import { useAuthStore } from "../store/authStore"; // ← Import auth store
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -64,11 +64,10 @@ const LoginPage = () => {
       localStorage.setItem("user", JSON.stringify(data));
 
       // Navigate based on role
-      if(data.role === "user") {
-         navigate("/pricing");
+      if(data.role === "admin") {
+        navigate("/admin/adminLandingPage");
         return;
-      }
-      
+      }      
     } catch (err) {
       console.error("Login error:", err);
       if (err instanceof Error) {
