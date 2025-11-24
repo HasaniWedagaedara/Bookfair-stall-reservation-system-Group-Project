@@ -1,0 +1,49 @@
+### Test Registration
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!",
+  "name": "Test User",
+  "businessName": "Test Business",
+  "mobileNumber": "+1234567890"
+}
+
+### Test User Login
+POST http://localhost:5000/auth/user/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "Password123!"
+}
+
+### Get Current User (use JWT from login response)
+GET http://localhost:5000/auth/me
+Cookie: jwt=YOUR_JWT_TOKEN_HERE
+
+### Create Reservation (use user ID from registration)
+POST http://localhost:5000/reservations
+Content-Type: application/json
+Cookie: jwt=YOUR_JWT_TOKEN_HERE
+
+{
+  "stallId": "stall-id-here",
+  "totalAmount": 500
+}
+
+### Send QR Code to Email
+POST http://localhost:5000/reservations/RESERVATION_ID/send-qr-email
+Content-Type: application/json
+Cookie: jwt=YOUR_JWT_TOKEN_HERE
+
+{
+  "userEmail": "testuser@example.com",
+  "userName": "Test User",
+  "stallName": "Test Stall"
+}
+
+### Get User Reservations
+GET http://localhost:5000/reservations/my-reservations
+Cookie: jwt=YOUR_JWT_TOKEN_HERE

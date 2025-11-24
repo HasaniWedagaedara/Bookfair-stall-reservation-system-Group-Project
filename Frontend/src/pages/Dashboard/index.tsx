@@ -13,10 +13,22 @@ import {
   ListItemIcon,
   ListItemText,
   Grid, 
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import CategoryIcon from '@mui/icons-material/Category';
+import DownloadIcon from '@mui/icons-material/Download';
+import EmailIcon from '@mui/icons-material/Email';
+import {
+  generateQRCodeCanvas,
+  downloadQRCodeAsImage,
+  sendQRCodeToEmail,
+  generateReservationPDF,
+  ReservationData,
+} from '../../utils/qrCodeUtils';
+import toast from 'react-hot-toast';
 
 const useMockAuthStore = () => ({
   user: {
@@ -31,6 +43,10 @@ type Reservation = {
   size: 'SMALL' | 'MEDIUM' | 'LARGE';
   qrCode: string;
   genres: string[] | null;
+  userEmail?: string;
+  userName?: string;
+  totalAmount?: number;
+  reservationDate?: string;
 };
 
 // Mock API call
@@ -43,6 +59,10 @@ const fetchMyReservation = (): Promise<Reservation> => {
         size: 'SMALL',
         qrCode: 'qr-data-string-123',
         genres: ['Fiction', 'Sci-Fi'],
+        userEmail: 'testuser@example.com',
+        userName: 'Akura',
+        totalAmount: 5000,
+        reservationDate: new Date().toISOString(),
       });
       // ---
     }, 1500);
@@ -53,6 +73,8 @@ const Dashboard = () => {
   const [genres, setGenres] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [myReservation, setMyReservation] = useState<Reservation | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { user } = useMockAuthStore(); 
 
   useEffect(() => {
@@ -68,6 +90,89 @@ const Dashboard = () => {
       ...myReservation!,
       genres: genres.split(',').map(g => g.trim()),
     });
+  };
+
+  const handleQRButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownloadImage = async () => {
+    handleMenuClose();
+    if (!myReservation) return;
+
+    setIsDownloading(true);
+    try {
+      const reservationData: ReservationData = {
+        id: myReservation.id,
+        stallName: myReservation.stallName,
+        size: myReservation.size,
+        userEmail: myReservation.userEmail || 'user@example.com',
+        userName: myReservation.userName || user.name,
+        totalAmount: myReservation.totalAmount,
+        reservationDate: myReservation.reservationDate,
+        genres: myReservation.genres || [],
+      };
+
+      await downloadQRCodeAsImage(reservationData);
+    } catch (error) {
+      console.error('Error downloading QR:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    handleMenuClose();
+    if (!myReservation) return;
+
+    setIsDownloading(true);
+    try {
+      const reservationData: ReservationData = {
+        id: myReservation.id,
+        stallName: myReservation.stallName,
+        size: myReservation.size,
+        userEmail: myReservation.userEmail || 'user@example.com',
+        userName: myReservation.userName || user.name,
+        totalAmount: myReservation.totalAmount,
+        reservationDate: myReservation.reservationDate,
+        genres: myReservation.genres || [],
+      };
+
+      await generateReservationPDF(reservationData);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    handleMenuClose();
+    if (!myReservation) return;
+
+    setIsDownloading(true);
+    try {
+      const reservationData: ReservationData = {
+        id: myReservation.id,
+        stallName: myReservation.stallName,
+        size: myReservation.size,
+        userEmail: myReservation.userEmail || 'user@example.com',
+        userName: myReservation.userName || user.name,
+        totalAmount: myReservation.totalAmount,
+        reservationDate: myReservation.reservationDate,
+        genres: myReservation.genres || [],
+      };
+
+      await sendQRCodeToEmail(reservationData);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const renderContent = () => {
@@ -184,10 +289,30 @@ const Dashboard = () => {
               variant="contained"
               color="primary"
               size="large"
-              onClick={() => console.log('Downloading pass...')}
+              disabled={isDownloading}
+              onClick={handleQRButtonClick}
+              startIcon={<DownloadIcon />}
             >
-              Download Your QR Pass
+              {isDownloading ? 'Processing...' : 'Download Your QR Pass'}
             </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleDownloadImage}>
+                <DownloadIcon sx={{ mr: 1 }} />
+                Download as Image
+              </MenuItem>
+              <MenuItem onClick={handleDownloadPDF}>
+                <DownloadIcon sx={{ mr: 1 }} />
+                Download as PDF
+              </MenuItem>
+              <MenuItem onClick={handleSendEmail}>
+                <EmailIcon sx={{ mr: 1 }} />
+                Send to Email
+              </MenuItem>
+            </Menu>
           </Paper>
         </Grid>
       </>

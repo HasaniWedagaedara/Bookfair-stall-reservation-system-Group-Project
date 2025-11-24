@@ -3,13 +3,20 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EmailService } from '../notification/email.service';
 import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ReservationService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(ReservationService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+  ) {}
 
   // Create a reservation (book a stall)
 
@@ -60,13 +67,15 @@ export class ReservationService {
     }
 
     // Create reservation
+    const reservationId = randomUUID();
     const reservation = await this.prisma.reservation.create({
       data: {
-        id: randomUUID(),
+        id: reservationId,
         userId: userId,
         stallId: stallId,
         totalAmount: totalAmount,
         status: 'CONFIRMED',
+        qrCode: reservationId, // Store reservation ID as QR code content
       },
       include: {
         stall: true,
@@ -87,7 +96,39 @@ export class ReservationService {
       data: { status: 'RESERVED' },
     });
 
+    // Send confirmation email with QR code (non-blocking)
+    this.sendConfirmationEmail(reservation).catch((error) => {
+      this.logger.error(
+        `Failed to send confirmation email for reservation ${reservationId}`,
+        error,
+      );
+    });
+
     return reservation;
+  }
+
+  /**
+   * Send confirmation email with QR code to user
+   */
+  private async sendConfirmationEmail(reservation: any): Promise<void> {
+    try {
+      await this.emailService.sendReservationConfirmation(
+        reservation.user.email,
+        reservation.user.name,
+        reservation.stall.name,
+        reservation.id,
+        reservation.totalAmount,
+        reservation.createdAt,
+      );
+      this.logger.log(
+        `Confirmation email sent to ${reservation.user.email} for reservation ${reservation.id}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send confirmation email to ${reservation.user.email}`,
+        error,
+      );
+    }
   }
 
   // Get user's own reservations
@@ -209,7 +250,67 @@ export class ReservationService {
     };
   }
 
-  //Get reservation statistics (Admin only)
+  /**
+   * Send QR code to email
+   */
+  async sendQRCodeToEmail(
+    reservationId: string,
+    userId: string,
+    userEmail: string,
+    userName: string,
+    stallName?: string,
+  ): Promise<{ message: string }> {
+    const reservation = await this.prisma.reservation.findUnique({
+      where: { id: reservationId },
+      include: {
+        stall: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!reservation) {
+      throw new NotFoundException('Reservation not found');
+    }
+
+    // Verify user owns this reservation
+    if (reservation.userId !== userId) {
+      throw new BadRequestException(
+        'You are not authorized to access this reservation',
+      );
+    }
+
+    // Send QR code email (use the EmailService)
+    try {
+      await this.emailService.sendReservationConfirmation(
+        userEmail || reservation.user.email,
+        userName || reservation.user.name,
+        stallName || reservation.stall.name,
+        reservation.id,
+        reservation.totalAmount,
+        reservation.createdAt,
+      );
+
+      this.logger.log(
+        `QR code sent to ${userEmail || reservation.user.email} for reservation ${reservationId}`,
+      );
+
+      return {
+        message: `QR code sent to ${userEmail || reservation.user.email}`,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to send QR code for reservation ${reservationId}`,
+        error,
+      );
+      throw new BadRequestException('Failed to send QR code to email');
+    }
+  }
 
   async getReservationStatistics() {
     const totalReservations = await this.prisma.reservation.count();
