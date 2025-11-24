@@ -31,7 +31,7 @@ const LandingPage = () => {
           <Cta
             variant="contained"
             color="primary"
-            onClick={() => navigate("/pricing")}
+            onClick={() => navigate("/login")}
           >
             View Stall Pricing
           </Cta>

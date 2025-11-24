@@ -26,11 +26,72 @@ interface Stall {
 }
 
 const mockStallData: Stall[] = [
-  { id: 'uuid-1', name: 'E1', size: 'LARGE', price: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 0 },
-  { id: 'uuid-2', name: 'E2', size: 'LARGE', price: 40000, status: 'RESERVED', widthUnits: 3, heightUnits: 2, row: 0, col: 3 },
-  { id: 'uuid-3', name: 'E3', size: 'LARGE', price: 40000, status: 'AVAILABLE', widthUnits: 3, heightUnits: 2, row: 0, col: 6 },
-  { id: 'uuid-4', name: 'A1', size: 'SMALL', price: 15000, status: 'AVAILABLE', widthUnits: 1, heightUnits: 1, row: 3, col: 0 },
-  { id: 'uuid-5', name: 'A2', size: 'SMALL', price: 15000, status: 'MAINTENANCE', widthUnits: 1, heightUnits: 1, row: 3, col: 1 },
+  {
+    id: "uuid-1",
+    name: "E1",
+    size: "LARGE",
+    price: 40000,
+    status: "AVAILABLE",
+    widthUnits: 3,
+    heightUnits: 2,
+    row: 0,
+    col: 0,
+  },
+  {
+    id: "uuid-2",
+    name: "E2",
+    size: "LARGE",
+    price: 40000,
+    status: "RESERVED",
+    widthUnits: 3,
+    heightUnits: 2,
+    row: 0,
+    col: 3,
+  },
+  {
+    id: "uuid-3",
+    name: "E3",
+    size: "LARGE",
+    price: 40000,
+    status: "AVAILABLE",
+    widthUnits: 3,
+    heightUnits: 2,
+    row: 0,
+    col: 6,
+  },
+  {
+    id: "uuid-4",
+    name: "A1",
+    size: "SMALL",
+    price: 15000,
+    status: "AVAILABLE",
+    widthUnits: 1,
+    heightUnits: 1,
+    row: 3,
+    col: 0,
+  },
+  {
+    id: "uuid-5",
+    name: "A2",
+    size: "SMALL",
+    price: 15000,
+    status: "MAINTENANCE",
+    widthUnits: 1,
+    heightUnits: 1,
+    row: 3,
+    col: 1,
+  },
+  {
+    id: "uuid-5",
+    name: "A5",
+    size: "MEDIUM",
+    price: 15000,
+    status: "MAINTENANCE",
+    widthUnits: 2,
+    heightUnits: 2,
+    row: 4,
+    col: 0,
+  },
 ];
 
 const FloorMapPage: React.FC = () => {
@@ -94,8 +155,59 @@ const FloorMapPage: React.FC = () => {
       <Typography variant="h3" align="center" gutterBottom>
         Colombo International Book Fair – Floor Map
       </Typography>
-      <Typography variant="body1" align="center" color="textSecondary" paragraph>
+      <Typography
+        variant="body1"
+        align="center"
+        color="textSecondary"
+        paragraph
+      >
         Click on an available stall to reserve.
+        <br />
+        <br />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 3, // spacing between items
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 12,
+                height: 12,
+                bgcolor: "#4682B4",
+                borderRadius: "50%",
+              }}
+            />
+            <span>AVAILABLE</span>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 12,
+                height: 12,
+                bgcolor: "#a0a0a0",
+                borderRadius: "50%",
+              }}
+            />
+            <span>RESERVED</span>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 12,
+                height: 12,
+                bgcolor: "#f5a623",
+                borderRadius: "50%",
+              }}
+            />
+            <span>MAINTENANCE</span>
+          </Box>
+        </Box>
       </Typography>
 
       <Box
@@ -128,8 +240,8 @@ const FloorMapPage: React.FC = () => {
               },
               "&.Mui-disabled": {
                 backgroundColor: "#a0a0a0",
-                color: "#f0f0f0"
-              }
+                color: "#f0f0f0",
+              },
             }}
           >
             {stall.name}
@@ -148,7 +260,11 @@ const FloorMapPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleConfirmReservation} variant="contained" autoFocus>
+          <Button
+            onClick={handleConfirmReservation}
+            variant="contained"
+            autoFocus
+          >
             Confirm Reservation
           </Button>
         </DialogActions>

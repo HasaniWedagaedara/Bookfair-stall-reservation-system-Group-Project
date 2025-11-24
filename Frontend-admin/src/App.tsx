@@ -5,26 +5,27 @@ import GoogleAuthLogin from "./components/GoogleAuthLogin";
 import ValidateAuth from "./components/ValidateAuth";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import LoginPage from "./pages/userAdmin/loginPage";
+import LoginPage from "./pages/loginPage";
 import RegisterPage from "./pages/user/registerPage";
-import LandingPage from "./pages/userAdmin/landingPage";
+import LandingPage from "./pages/adminLanding";
 import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
-import Demopage from "./pages/DemoPage/demopage";
+import Demopage from "./pages/demopage";
 import { Toaster } from "react-hot-toast";
-import AdminDashBoard from "./pages/admin/adminDashboard";
-import ProfilePage from "./pages/userAdmin/Profile";
-import AdminFloorMap from "./pages/admin/adminFloorMap";
+import AdminFloorMap from "./pages/adminFloorMap";
 import PricingPage from "./pages/user/PricingPage/PricingPage";
-import PrivacyPolicy from "./pages/userAdmin/PrivacyPolicy";
-import TermsAndConditions from "./pages/userAdmin/TermsAndConditions";
-import RefundPolicy from "./pages/userAdmin/RefundPolicy";
-import ContactUs from "./pages/userAdmin/contactUs";
-import AboutUs from "./pages/userAdmin/AboutUs";
+import PrivacyPolicy from "./pages/about/PrivacyPolicy";
+import TermsAndConditions from "./pages/about/TermsAndConditions";
+import RefundPolicy from "./pages/about/RefundPolicy";
+import ContactUs from "./pages/about/contactUs";
+import AboutUs from "./pages/about/AboutUs";
 import FloorMapPage from "./pages/user/floormap";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
 import axios from "axios";
+import ProfilePage from "./pages/Profile";
+import AdminDashBoard from "./pages/adminDashboard";
+import AdminLandingPage from "./pages/adminLanding";
 
 function App() {
   const location = useLocation();
@@ -68,14 +69,14 @@ function App() {
             location.pathname !== "/register" && <Navbar />}
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            
+
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/map" element={<FloorMapPage />} />
-            
+
             <Route path="/google" element={<GoogleAuthLogin />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/about" element={<AboutUs />} />
@@ -87,9 +88,10 @@ function App() {
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/admin/dashboard" element={<AdminDashBoard />} />
-            <Route path="/admin/floorMap" element={<AdminFloorMap/>} />
+            <Route path="/admin/floorMap" element={<AdminFloorMap />} />
             <Route path="/demo-Page" element={<Demopage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/adminLandingPage" element={<AdminLandingPage/>} />
           </Routes>
           {!location.pathname.startsWith("/admin") &&
             location.pathname !== "/login" &&
