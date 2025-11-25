@@ -120,7 +120,7 @@ export const downloadQRCodeAsImage = async (
  * Send QR code to email via backend API
  */
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const sendQRCodeToEmail = async (
   reservationData: ReservationData,
@@ -143,13 +143,18 @@ export const sendQRCodeToEmail = async (
     );
 
     if (!response.ok) {
-      throw new Error('Failed to send QR code to email');
+      const errorData = await response.json().catch(() => ({ message: 'Failed to send QR code to email' }));
+      console.error('Server error response:', errorData);
+      throw new Error(errorData.message || 'Failed to send QR code to email');
     }
 
+    const result = await response.json();
+    console.log('Email sent successfully:', result);
     toast.success('QR code sent to your email!');
   } catch (error) {
     console.error('Failed to send QR code to email', error);
-    toast.error('Failed to send QR code to email');
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send QR code to email';
+    toast.error(errorMessage);
     throw error;
   }
 };
