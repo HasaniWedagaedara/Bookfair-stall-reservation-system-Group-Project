@@ -63,7 +63,7 @@ const LandingPage = () => {
             </Grid>
 
             <Grid item xs={12} md={4}>
-              <Card>
+              <Card onClick={() => navigate("/map")} sx={{ cursor: "pointer" }}>
                 <StorefrontIcon
                   sx={{ fontSize: "132px", color: "primary.main" }}
                 />
@@ -72,6 +72,7 @@ const LandingPage = () => {
                 </Typography>
               </Card>
             </Grid>
+
 
             <Grid item xs={12} md={4}>
               <Card>

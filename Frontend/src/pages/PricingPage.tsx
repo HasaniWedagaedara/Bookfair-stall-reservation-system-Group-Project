@@ -77,7 +77,7 @@ const PricingPage = () => {
           variant="contained"
           color="secondary"
           size="large"
-          onClick={() => navigate("/map")} // ← use navigate function here
+          onClick={() => navigate("/map")}
         >
           View Floor Map
         </Button>
