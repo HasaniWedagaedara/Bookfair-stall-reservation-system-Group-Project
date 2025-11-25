@@ -14,7 +14,7 @@ import {
 import axios from "axios";
 import toast from "react-hot-toast";
 import Navbar from "../components/navBar"; 
-import Footer from "../components/footer"; // IMPORT FOOTER
+import Footer from "../components/footer";
 
 // --- Interface Definitions ---
 interface AdminStall {
@@ -54,7 +54,6 @@ const mapStallsWithGridData = (apiStalls: any[], reservations: any[]): AdminStal
     // Index reservations by stallId for fast lookup
     const reservationMap = new Map();
     reservations.forEach(res => {
-        // NOTE: The backend API /reservations MUST include the nested user object {user: {name, businessName, email}}
         reservationMap.set(res.stallId, { 
             name: res.user?.name,
             businessName: res.user?.businessName,
@@ -110,7 +109,6 @@ const AdminFloorMap: React.FC = () => {
         const apiStalls = stallResponse.data.stalls || [];
         const allReservations = reservationResponse.data.reservations || [];
 
-        // Map backend data + grid properties
         const mappedStalls = mapStallsWithGridData(apiStalls, allReservations);
         
         setStalls(mappedStalls);
@@ -134,7 +132,7 @@ const AdminFloorMap: React.FC = () => {
   const getStallColor = (status: AdminStall["status"]) => {
     if (status === "RESERVED") return "#a0a0a0";
     if (status === "MAINTENANCE") return "#f5a623";
-    return "#4682B4"; // Available
+    return "#4682B4"; 
   };
   
   if (isLoading) {
@@ -154,7 +152,7 @@ const AdminFloorMap: React.FC = () => {
 
   return (
     <>
-      <Navbar /> {/* Use the shared Navbar */}
+      <Navbar />
       <Container sx={{ py: 4, mb: 6 }}>
         <Typography variant="h3" align="center" gutterBottom>
           Admin - Stall Availability Map
@@ -202,7 +200,7 @@ const AdminFloorMap: React.FC = () => {
           ))}
         </Box>
 
-        <Dialog open={!!selected} onClose={handleClose} maxWidth="md" fullWidth>
+        <Dialog open={!!selected} onClose={handleClose} maxWidth="sm" fullWidth>
           <DialogTitle>Stall {selected?.name} - Details</DialogTitle>
           <DialogContent>
             <DialogContentText component={"div"} sx={{ color: "text.primary" }}>
@@ -217,7 +215,6 @@ const AdminFloorMap: React.FC = () => {
                     Reserved By:
                   </Typography>
                   <br/>
-                  {/* Display Contact Person Name */}
                   <Typography component="span" fontWeight="bold">
                     {selected?.reservedByName} 
                   </Typography>

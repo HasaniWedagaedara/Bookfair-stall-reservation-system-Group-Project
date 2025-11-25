@@ -16,7 +16,7 @@ import {
     Button
 } from "@mui/material";
 import Navbar from "../components/navBar"; 
-import Footer from "../components/footer"; // IMPORT FOOTER
+import Footer from "../components/footer"; 
 import axios from 'axios';
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom"; 
@@ -157,7 +157,6 @@ const AdminDashBoard = () => {
                     Admin Dashboard
                 </Typography>
 
-                {/* --- Navigation Bar for Admin Map --- */}
                 <Box sx={{ mb: 4, display: 'flex', gap: 2 }}>
                     <Button 
                         variant="contained" 
@@ -166,7 +165,6 @@ const AdminDashBoard = () => {
                     >
                         View Stall Map
                     </Button>
-                    {/* Add other admin actions here */}
                 </Box>
 
                 {/* --- Statistic Cards --- */}
