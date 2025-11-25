@@ -1,25 +1,24 @@
 import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import theme from "./theme";
 import { Route, Routes, useLocation } from "react-router-dom";
-import ValidateAuth from "./components/ValidateAuth";
 import Navbar from "./components/navBar";
 import Footer from "./components/footer";
-import LandingPage from "./pages/landingPage";
+import LoginPage from "./pages/loginPage";
 import Dashboard from "./pages/dashboard";
 import { Toaster } from "react-hot-toast";
-import PricingPage from "./pages/PricingPage";
+import AdminFloorMap from "./pages/adminFloorMap";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import RefundPolicy from "./pages/RefundPolicy";
 import ContactUs from "./pages/contactUs";
 import AboutUs from "./pages/AboutUs";
-import FloorMapPage from "./pages/floormap";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
 import axios from "axios";
-import LoginPage from "./pages/loginPage";
-import RegisterPage from "./pages/registerPage";
 import ProfilePage from "./pages/Profile";
+import AdminDashBoard from "./pages/adminDashboard";
+import ValidateAuth from "./components/ValidateAuth";
+import AdminLandingPage from "./pages/adminLanding";
 
 function App() {
   const location = useLocation();
@@ -62,15 +61,11 @@ function App() {
             location.pathname !== "/login" &&
             location.pathname !== "/register" && <Navbar />}
           <Routes>
-            <Route path="/" element={<LandingPage />} />
-            
+            <Route path="/" element={<AdminLandingPage />} />
+
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
 
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/map" element={<FloorMapPage />} />
-            
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/about" element={<AboutUs />} />
             <Route
@@ -79,6 +74,8 @@ function App() {
             />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/contactus" element={<ContactUs />} />
+            <Route path="/admin/dashboard" element={<AdminDashBoard />} />
+            <Route path="/admin/floorMap" element={<AdminFloorMap />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>
           {!location.pathname.startsWith("/admin") &&
