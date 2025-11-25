@@ -6,7 +6,7 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(express.json()); // <--- ADDED
+  app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
   // Enable CORS for frontend

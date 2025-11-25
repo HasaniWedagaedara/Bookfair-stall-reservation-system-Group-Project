@@ -120,7 +120,7 @@ export const downloadQRCodeAsImage = async (
  * Send QR code to email via backend API
  */
 
-const API_URL = import.meta.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export const sendQRCodeToEmail = async (
   reservationData: ReservationData,
