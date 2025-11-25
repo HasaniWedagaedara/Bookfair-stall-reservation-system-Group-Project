@@ -12,8 +12,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore"; // ← Import auth store
+import { useNavigate } from "react-router-dom";// ← Import auth store
+import { useAuthStore } from "../store/authStore";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -64,10 +64,11 @@ const LoginPage = () => {
       localStorage.setItem("user", JSON.stringify(data));
 
       // Navigate based on role
-      if(data.role === "admin") {
-        navigate("/");
+      if(data.role === "user") {
+         navigate("/pricing");
         return;
-      }      
+      }
+      
     } catch (err) {
       console.error("Login error:", err);
       if (err instanceof Error) {

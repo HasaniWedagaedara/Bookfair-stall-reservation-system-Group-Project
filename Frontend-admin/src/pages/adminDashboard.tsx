@@ -12,7 +12,7 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/navBar";
 
 // --- Mock Data ---
 const mockStats = {

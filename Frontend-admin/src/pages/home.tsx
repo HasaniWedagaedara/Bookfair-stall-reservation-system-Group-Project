@@ -1,5 +1,5 @@
 import { useTheme, Box, Button, Grid, Typography, styled } from "@mui/material";
-import bgimg from "../../assets/bgimg.jpg";
+import bgimg from "../assets/bgimg.jpg";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
