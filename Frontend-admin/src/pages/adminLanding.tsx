@@ -31,14 +31,14 @@ const AdminLandingPage = () => {
             <Cta
               variant="contained"
               color="primary"
-              onClick={() => navigate("/admin-dashboard")}
+              onClick={() => navigate("/admin/dashboard")}
             >
               View Dashboard
             </Cta>
             <Cta
               variant="contained"
               color="primary"
-              onClick={() => navigate("/admin-dashboard")}
+              onClick={() => navigate("/admin/floorMap")}
             >
               See Available Stalls
             </Cta>

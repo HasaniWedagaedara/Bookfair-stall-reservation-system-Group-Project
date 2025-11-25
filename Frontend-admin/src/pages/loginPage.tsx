@@ -65,7 +65,7 @@ const LoginPage = () => {
 
       // Navigate based on role
       if(data.role === "admin") {
-        navigate("/admin/adminLandingPage");
+        navigate("/");
         return;
       }      
     } catch (err) {
