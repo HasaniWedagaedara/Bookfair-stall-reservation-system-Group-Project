@@ -15,7 +15,7 @@ import axios from "axios";
 import React, { useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Link, useLocation } from "react-router-dom";
-import helpIcon from "../../assets/helpIcon.svg";
+import helpIcon from "../assets/helpIcon.svg";
 import { useScreen } from "../customHooks/useScreen";
 import { useAuthStore } from "../store/authStore";
 
@@ -160,7 +160,7 @@ export default function Navbar() {
           to="/"
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          CIBF - Stall Booking
+          CIBF - Stall Booking(Admin)
         </LinkContainer>
       </Typography>
       <Box

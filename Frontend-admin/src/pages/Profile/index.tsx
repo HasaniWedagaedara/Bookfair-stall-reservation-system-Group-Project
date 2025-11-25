@@ -11,9 +11,9 @@ import {
   Divider,
 } from '@mui/material';
 import BusinessIcon from '@mui/icons-material/Business';
-import { useAuthStore } from '../../../store/authStore';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { useAuthStore } from '../../store/authStore';
 
 
 const ProfilePage = () => {

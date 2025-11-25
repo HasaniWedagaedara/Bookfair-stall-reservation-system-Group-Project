@@ -4,9 +4,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "./components/navBar";
 import Footer from "./components/footer";
 import LoginPage from "./pages/loginPage";
-import LandingPage from "./pages/adminLanding";
 import Dashboard from "./pages/dashboard";
-import Demopage from "./pages/demopage";
 import { Toaster } from "react-hot-toast";
 import AdminFloorMap from "./pages/adminFloorMap";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -78,7 +76,6 @@ function App() {
             <Route path="/contactus" element={<ContactUs />} />
             <Route path="/admin/dashboard" element={<AdminDashBoard />} />
             <Route path="/admin/floorMap" element={<AdminFloorMap />} />
-            <Route path="/demo-Page" element={<Demopage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>
           {!location.pathname.startsWith("/admin") &&

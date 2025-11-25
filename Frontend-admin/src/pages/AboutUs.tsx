@@ -8,9 +8,9 @@ import {
 import {useTheme} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import aboutUsImage from '../../assets/about-us.png';
-import ourMissionImage from '../../assets/our-mission.jpg';
-import ourStoryImage from '../../assets/our-story.jpg';
+import aboutUsImage from '../assets/about-us.png';
+import ourMissionImage from '../assets/our-mission.jpg';
+import ourStoryImage from '../assets/our-story.jpg';
 
 const AboutUs = () => {
   const theme = useTheme();

@@ -1,13 +1,14 @@
 {
-  "name": "frontend",
+  "name": "frontend-admin",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "engines": {
     "node": ">=14.0.0"
   },
+  
   "scripts": {
-    "dev": "vite Frontend --config Frontend/vite.config.ts",
+    "dev": "vite",
     "build": "tsc && vite build",
     "format": "prettier --write \"src/**/*.tsx\" \"src/**/*.ts\"",
     "lint": "eslint src",

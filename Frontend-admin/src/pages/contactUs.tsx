@@ -1,8 +1,8 @@
 import { Box, Button, CardContent, Grid, styled, Typography } from '@mui/material';
-import help from '../../assets/contactushelp.svg';
-import call from '../../assets/contactuscall.svg';
-import email from '../../assets/contactusemail.svg';
-import coverimage from '../../assets/coverimage.jpg';
+import help from '../assets/contactushelp.svg';
+import call from '../assets/contactuscall.svg';
+import email from '../assets/contactusemail.svg';
+import coverimage from '../assets/coverimage.jpg';
 import { useNavigate } from "react-router-dom";
 
 const ContactUs = () => {
