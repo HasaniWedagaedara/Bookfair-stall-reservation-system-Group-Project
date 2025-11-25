@@ -1,10 +1,23 @@
 import { useTheme, Box, Button, Grid, Typography, styled } from "@mui/material";
 import bgimg from "../assets/bgimg.jpg";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast"; 
 
 const AdminLandingPage = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { isAuth, user } = useAuthStore();
+
+  const handleAdminNavigation = (path: string) => {
+    if (isAuth && user?.role === 'admin') {
+      navigate(path);
+    } else {
+      toast.error("Please log in with administrator credentials to access the dashboard.");
+      navigate("/login");
+    }
+  };
+  
   return (
     <Grid container direction="column" marginTop="2rem">
       <Grid item>
@@ -31,14 +44,14 @@ const AdminLandingPage = () => {
             <Cta
               variant="contained"
               color="primary"
-              onClick={() => navigate("/admin/dashboard")}
+              onClick={() => handleAdminNavigation("/admin/dashboard")}
             >
               View Dashboard
             </Cta>
             <Cta
               variant="contained"
               color="primary"
-              onClick={() => navigate("/admin/floorMap")}
+              onClick={() => handleAdminNavigation("/admin/floorMap")}
             >
               See Available Stalls
             </Cta>
