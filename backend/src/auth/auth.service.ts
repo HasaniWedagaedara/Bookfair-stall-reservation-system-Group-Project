@@ -55,7 +55,7 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = user;
 
     // Create JWT token
-    const token = this.createToken(user.email, user.id);
+    const token = this.createToken(user.email, user.id, user.name);
 
     return { user: userWithoutPassword, token };
   }
@@ -83,7 +83,7 @@ export class AuthService {
     }
 
     // Create token
-    const token = this.createToken(user.email, user.id);
+    const token = this.createToken(user.email, user.id, user.name);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user;
 
@@ -122,7 +122,7 @@ export class AuthService {
     }
 
     // Create token
-    const token = this.createToken(user.email, user.id);
+    const token = this.createToken(user.email, user.id, user.name);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...userWithoutPassword } = user;
 
@@ -173,15 +173,15 @@ export class AuthService {
   }
 
   // Helper: Create JWT token
-  private createToken(email: string, id: string): string {
-    const payload = { email, id };
+  private createToken(email: string, id: string, name?: string): string {
+    const payload = { email, id, name };
     return this.jwtService.sign(payload);
   }
 
-  verifyToken(token: string): { id: string; email: string } {
+  verifyToken(token: string): { id: string; email: string; name?: string } {
     try {
       const decoded = this.jwtService.verify(token);
-      return decoded as { id: string; email: string };
+      return decoded as { id: string; email: string; name?: string };
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
     }

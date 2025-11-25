@@ -13,13 +13,24 @@ import {
   ListItemIcon,
   ListItemText,
   Grid, 
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import CategoryIcon from '@mui/icons-material/Category';
+import DownloadIcon from '@mui/icons-material/Download';
+import EmailIcon from '@mui/icons-material/Email';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useAuthStore } from "../store/authStore";
+import {
+  generateQRCodeCanvas,
+  downloadQRCodeAsImage,
+  sendQRCodeToEmail,
+  generateReservationPDF,
+  ReservationData,
+} from '../utils/qrCodeUtils';
 
 
 type Reservation = {
@@ -29,6 +40,10 @@ type Reservation = {
   qrCode: string;
   genres: string[] | null; 
   stallId: string;
+  userEmail?: string;
+  userName?: string;
+  totalAmount?: number;
+  reservationDate?: string;
 };
 
 // ADDED: Local Storage key for simulated persistence
@@ -79,6 +94,10 @@ const fetchMyReservation = async (): Promise<{ activeReservations: Reservation[]
             qrCode: res.qrCode || 'qr-data-string-default', 
             genres: genresData, 
             stallId: res.stallId,
+            userEmail: res.user?.email,
+            userName: res.user?.name,
+            totalAmount: res.totalAmount,
+            reservationDate: res.createdAt,
         };
     });
 
@@ -97,6 +116,9 @@ const Dashboard = () => {
   const [genres, setGenres] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [activeReservations, setActiveReservations] = useState<Reservation[]>([]); // Store ALL active reservations
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const { user } = useAuthStore(); 
   
   // State helpers derived from activeReservations
@@ -132,6 +154,91 @@ const Dashboard = () => {
     );
     
     toast.success("Genres accepted! Actual submission to server is pending backend implementation.", { duration: 5000 });
+  };
+
+  // QR Code handlers
+  const handleQRButtonClick = (event: React.MouseEvent<HTMLButtonElement>, reservation: Reservation) => {
+    setSelectedReservation(reservation);
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDownloadImage = async () => {
+    handleMenuClose();
+    if (!selectedReservation) return;
+
+    setIsDownloading(true);
+    try {
+      const reservationData: ReservationData = {
+        id: selectedReservation.id,
+        stallName: selectedReservation.stallName,
+        size: selectedReservation.size,
+        userEmail: selectedReservation.userEmail || user?.email || 'user@example.com',
+        userName: selectedReservation.userName || user?.name || 'User',
+        totalAmount: selectedReservation.totalAmount,
+        reservationDate: selectedReservation.reservationDate,
+        genres: selectedReservation.genres || [],
+      };
+
+      await downloadQRCodeAsImage(reservationData);
+    } catch (error) {
+      console.error('Error downloading QR:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    handleMenuClose();
+    if (!selectedReservation) return;
+
+    setIsDownloading(true);
+    try {
+      const reservationData: ReservationData = {
+        id: selectedReservation.id,
+        stallName: selectedReservation.stallName,
+        size: selectedReservation.size,
+        userEmail: selectedReservation.userEmail || user?.email || 'user@example.com',
+        userName: selectedReservation.userName || user?.name || 'User',
+        totalAmount: selectedReservation.totalAmount,
+        reservationDate: selectedReservation.reservationDate,
+        genres: selectedReservation.genres || [],
+      };
+
+      await generateReservationPDF(reservationData);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    handleMenuClose();
+    if (!selectedReservation) return;
+
+    setIsDownloading(true);
+    try {
+      const reservationData: ReservationData = {
+        id: selectedReservation.id,
+        stallName: selectedReservation.stallName,
+        size: selectedReservation.size,
+        userEmail: selectedReservation.userEmail || user?.email || 'user@example.com',
+        userName: selectedReservation.userName || user?.name || 'User',
+        totalAmount: selectedReservation.totalAmount,
+        reservationDate: selectedReservation.reservationDate,
+        genres: selectedReservation.genres || [],
+      };
+
+      await sendQRCodeToEmail(reservationData);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
   
   // Renders the single reservation panel (reservation details and QR pass)
@@ -255,10 +362,30 @@ const Dashboard = () => {
               variant="contained"
               color="primary"
               size="large"
-              onClick={() => console.log('Downloading pass...')}
+              disabled={isDownloading}
+              onClick={(e) => handleQRButtonClick(e, reservation)}
+              startIcon={<DownloadIcon />}
             >
-              Download Your QR Pass
+              {isDownloading ? 'Processing...' : 'Download Your QR Pass'}
             </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleDownloadImage}>
+                <DownloadIcon sx={{ mr: 1 }} />
+                Download as Image
+              </MenuItem>
+              <MenuItem onClick={handleDownloadPDF}>
+                <DownloadIcon sx={{ mr: 1 }} />
+                Download as PDF
+              </MenuItem>
+              <MenuItem onClick={handleSendEmail}>
+                <EmailIcon sx={{ mr: 1 }} />
+                Send to Email
+              </MenuItem>
+            </Menu>
           </Paper>
         </Grid>
         

@@ -87,4 +87,28 @@ export class ReservationController {
   ) {
     return await this.reservationService.cancelReservation(id, req.user.id);
   }
+
+  // Send QR code to email
+
+  @UseGuards(JwtAuthGuard)  //temp
+  @Post(':id/send-qr-email')
+  async sendQRCodeToEmail(
+    @Param('id') id: string,
+    @Req() req: AuthRequest,
+    @Body()
+    body?: {
+      userEmail?: string;
+      userName?: string;
+      stallName?: string;
+    },
+  ) {
+    console.log('REQ USER:', req.user); 
+    return await this.reservationService.sendQRCodeToEmail(
+      id,
+      req.user.id,
+      body?.userEmail || req.user.email,
+      body?.userName || req.user.name,
+      body?.stallName,
+    );
+  }
 }

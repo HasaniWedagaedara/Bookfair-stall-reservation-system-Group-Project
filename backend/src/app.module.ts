@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { StallModule } from './stall/stall.module';
 import { ReservationModule } from './reservation/reservation.module';
+import { NotificationModule } from './notification/notification.module';
 import { GenreModule } from './genre/genre.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { GenreModule } from './genre/genre.module';
     PrismaModule,
     AuthModule,
     StallModule,
+    NotificationModule,
     ReservationModule,
     GenreModule,
   ],
