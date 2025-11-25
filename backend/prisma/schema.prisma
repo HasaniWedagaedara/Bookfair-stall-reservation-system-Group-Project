@@ -25,16 +25,16 @@ model User {
 
 model Stall {
   id           String        @id @default(uuid())
-  name         String        @unique
   size         String
   location     String
   dimensions   String
-  price  Float
-  idealFor     String
-  features     String
   status       String        @default("AVAILABLE")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  features     String
+  idealFor     String
+  price        Float
+  name         String        @unique
   reservations Reservation[] @relation("StallReservations")
 
   @@map("stalls")

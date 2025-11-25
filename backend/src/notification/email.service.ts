@@ -28,6 +28,9 @@ export class EmailService {
           user: smtpUser,
           pass: smtpPass,
         },
+        tls: { 
+          rejectUnauthorized: false, 
+        },
       });
 
       this.logger.log('SMTP Transporter initialized successfully');
@@ -95,11 +98,19 @@ export class EmailService {
       );
 
       const mailOptions = {
-        from: smtpFrom,
-        to: userEmail,
-        subject: `Bookfair Reservation Confirmed - ${stallName}`,
-        html: htmlContent,
-      };
+  from: smtpFrom,
+  to: userEmail,
+  subject: `Bookfair Reservation Confirmed - ${stallName}`,
+  html: htmlContent,
+  attachments: [
+    {
+      filename: 'qrcode.png',
+      content: qrCodeDataUrl.split('base64,')[1],
+      encoding: 'base64',
+      cid: 'qrcodeimage@bookfair', 
+    },
+  ],
+};
 
       const info = await this.transporter.sendMail(mailOptions);
       this.logger.log(`Email sent successfully to ${userEmail}. Message ID: ${info.messageId}`);
@@ -250,7 +261,7 @@ export class EmailService {
               </div>
 
               <div class="total-amount">
-                Total Amount: ₹${totalAmount.toFixed(2)}
+                Total Amount: Rs.${totalAmount.toFixed(2)}
               </div>
 
               <p style="color: #666; font-size: 14px;">
@@ -258,13 +269,13 @@ export class EmailService {
               </p>
 
               <div class="qr-code">
-                <img src="${qrCodeDataUrl}" alt="Reservation QR Code" />
+                <img src="cid:qrcodeimage@bookfair" alt="Reservation QR Code" />
                 <p class="qr-instruction">Scan this QR code for verification</p>
               </div>
 
               <p>For any queries or to view your reservations, please visit:</p>
               <p style="text-align: center;">
-                <a href="${frontendUrl}/dashboard" class="button">View Your Dashboard</a>
+                <a href="${frontendUrl}" class="button">View Your Dashboard</a>
               </p>
 
               <p style="color: #999; font-size: 14px; margin-top: 20px;">

@@ -119,12 +119,15 @@ export const downloadQRCodeAsImage = async (
 /**
  * Send QR code to email via backend API
  */
+
+const API_URL = import.meta.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export const sendQRCodeToEmail = async (
   reservationData: ReservationData,
 ): Promise<void> => {
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/reservations/${reservationData.id}/send-qr-email`,
+      `${API_URL}/reservations/${reservationData.id}/send-qr-email`,
       {
         method: 'POST',
         headers: {
@@ -202,7 +205,7 @@ export const generateReservationPDF = async (
     yPosition += lineHeight;
 
     if (reservationData.totalAmount) {
-      pdf.text(`Amount: ₹${reservationData.totalAmount.toFixed(2)}`, margin, yPosition);
+      pdf.text(`Amount: Rs.${reservationData.totalAmount.toFixed(2)}`, margin, yPosition);
       yPosition += lineHeight;
     }
 

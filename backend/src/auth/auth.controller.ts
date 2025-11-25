@@ -31,6 +31,10 @@ export class AuthController {
     },
     @Res() res: Response,
   ) {
+
+    if (!body) {
+    return res.status(400).json({ message: "Request body missing" });
+  }
     const { user, token } = await this.authService.register(
       body.email,
       body.password,
@@ -57,6 +61,11 @@ export class AuthController {
     @Body() body: { email: string; password: string },
     @Res() res: Response,
   ) {
+
+    if (!body) {
+    return res.status(400).json({ message: "Request body missing" });
+  }
+  
     return await this.authService.userLogin(body.email, body.password, res);
   }
 

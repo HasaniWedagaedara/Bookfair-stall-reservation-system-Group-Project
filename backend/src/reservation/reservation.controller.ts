@@ -90,7 +90,7 @@ export class ReservationController {
 
   // Send QR code to email
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)  //temp
   @Post(':id/send-qr-email')
   async sendQRCodeToEmail(
     @Param('id') id: string,
@@ -102,6 +102,7 @@ export class ReservationController {
       stallName?: string;
     },
   ) {
+    console.log('REQ USER:', req.user); 
     return await this.reservationService.sendQRCodeToEmail(
       id,
       req.user.id,
