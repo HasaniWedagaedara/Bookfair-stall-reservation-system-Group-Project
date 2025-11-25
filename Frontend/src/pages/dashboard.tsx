@@ -27,7 +27,7 @@ import {
   sendQRCodeToEmail,
   generateReservationPDF,
   ReservationData,
-} from '../../utils/qrCodeUtils';
+} from '../utils/qrCodeUtils';
 import toast from 'react-hot-toast';
 
 const useMockAuthStore = () => ({
