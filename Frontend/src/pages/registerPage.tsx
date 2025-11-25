@@ -69,7 +69,7 @@ const RegisterPage = () => {
 
       localStorage.setItem("user", JSON.stringify(data));
 
-      navigate("/dashboard");
+      navigate("/pricing");
     } catch (err) {
       console.error("Registration error:", err);
       if (err instanceof Error) {

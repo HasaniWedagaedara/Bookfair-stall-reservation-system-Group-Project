@@ -170,6 +170,18 @@ export default function Navbar() {
           gap: "1.5rem",
         }}
       >
+        {/* Dashboard/My Bookings Link for Authenticated Users */}
+        {isAuth && (
+            <LinkContainer
+                to="/dashboard"
+                style={{ textDecoration: "none" }}
+            >
+                <Typography variant="h6" color={theme.palette.common.black}>
+                    My Bookings
+                </Typography>
+            </LinkContainer>
+        )}
+
         <LinkContainer
           to="/contactus"
           style={{ textDecoration: "none" }}
@@ -246,6 +258,10 @@ export default function Navbar() {
                 },
               }}
             >
+              {/* Added Dashboard link inside the dropdown menu for easy access */}
+              <MenuItem>
+                <LinkContainer to="/dashboard">Dashboard</LinkContainer>
+              </MenuItem>
               <MenuItem>
                 <LinkContainer to="/profile">View Profile</LinkContainer>
               </MenuItem>

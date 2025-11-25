@@ -12,12 +12,12 @@ import {
   CircularProgress,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { useNavigate } from "react-router-dom";// ← Import auth store
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { setIsAuth, setUser } = useAuthStore(); // ← Get setters from store
+  const { setIsAuth, setUser } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -63,11 +63,10 @@ const LoginPage = () => {
       // Store user info in localStorage (optional)
       localStorage.setItem("user", JSON.stringify(data));
 
-      // Navigate based on role
-      if(data.role === "user") {
-         navigate("/pricing");
-        return;
-      }
+      // MODIFIED: Navigate all successful users to the Dashboard.
+      // The Dashboard handles redirection to /pricing if no reservation exists.
+      // Admin roles should still be handled separately if needed, but for 'user' flow, we go to dashboard.
+      navigate("/dashboard");
       
     } catch (err) {
       console.error("Login error:", err);
