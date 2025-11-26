@@ -271,19 +271,7 @@ export default function Navbar() {
             </Menu>
           </ProfileContainer>
         )}
-        {!location.pathname.startsWith("/admin") && user?.role === "admin" ? (
-          currentScreen === "lg" || currentScreen === "xl" ? (
-            <ManageButton>
-              <Typography variant="h6" color={theme.palette.common.black}>
-                Manage Stalls
-              </Typography>
-            </ManageButton>
-          ) : (
-            <></>
-          )
-        ) : (
-          <></>
-        )}
+        
       </Box>
       <Toaster position="top-center" />
     </NavContainer>

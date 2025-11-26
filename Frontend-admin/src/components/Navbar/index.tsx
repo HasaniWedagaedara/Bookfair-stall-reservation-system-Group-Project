@@ -15,7 +15,6 @@ import axios from "axios";
 import React, { useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Link, useLocation } from "react-router-dom";
-import helpIcon from "../../assets/helpIcon.svg";
 import { useScreen } from "../../customHooks/useScreen";
 import { useAuthStore } from "../../store/authStore";
 
@@ -170,18 +169,7 @@ export default function Navbar() {
           gap: "1.5rem",
         }}
       >
-        <LinkContainer
-          to="/contactus"
-          style={{ textDecoration: "none" }}
-          sx={{ padding: 0 }}
-        >
-          <HelpButton display={{ xs: "none", md: "flex" }}>
-            <img src={helpIcon} alt="help" />
-            <Typography variant="h6" color={theme.palette.common.black}>
-              Help
-            </Typography>
-          </HelpButton>
-        </LinkContainer>
+        
 
         {!isAuth ? (
           <LinkContainer to="/login" sx={{ padding: 0 }}>
@@ -246,28 +234,14 @@ export default function Navbar() {
                 },
               }}
             >
-              <MenuItem>
-                <LinkContainer to="/profile">View Profile</LinkContainer>
-              </MenuItem>
+              
               <MenuItem onClick={handleLogout}>
                 <LinkContainer to="#">Logout</LinkContainer>
               </MenuItem>
             </Menu>
           </ProfileContainer>
         )}
-        {!location.pathname.startsWith("/admin") && user?.role === "admin" ? (
-          currentScreen === "lg" || currentScreen === "xl" ? (
-            <ManageButton>
-              <Typography variant="h6" color={theme.palette.common.black}>
-                Manage Stalls
-              </Typography>
-            </ManageButton>
-          ) : (
-            <></>
-          )
-        ) : (
-          <></>
-        )}
+        
       </Box>
       <Toaster position="top-center" />
     </NavContainer>
