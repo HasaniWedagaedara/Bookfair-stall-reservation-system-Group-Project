@@ -22,58 +22,99 @@ interface Stall {
   size: "SMALL" | "MEDIUM" | "LARGE";
   price: number;
   status: "AVAILABLE" | "RESERVED" | "MAINTENANCE"; // Backend Status
-  // REQUIRED GRID PROPERTIES (MUST BE INJECTED ON FRONTEND)
+  dimensions: string; 
+  // REQUIRED GRID PROPERTIES (Calculated dynamically)
   widthUnits: number; 
   heightUnits: number;
   row: number;
   col: number;
 }
 
-// --- HARDCODED GRID DATA MAP (ADJUSTED FOR VISUAL ALIGNMENT) ---
-// Note: Grid coordinates start at [0, 0] top-left.
-const GRID_DATA_MAP: { [key: string]: Pick<Stall, 'widthUnits' | 'heightUnits' | 'row' | 'col'> } = {
-  // Stalls A1 and A2 (Small, 1x1 units) - Aligned to show small block
-  'A1': { row: 3, col: 1, widthUnits: 1, heightUnits: 1 },
-  'A2': { row: 3, col: 2, widthUnits: 1, heightUnits: 1 },
-  
-  // Stalls B1 and D1 (B1 is Medium 2x2, D1 is Small 1x1) - Placed below A1/A2 and next to each other
-  'B1': { row: 5, col: 3, widthUnits: 2, heightUnits: 2 }, // Adjusted position for visual grouping
-  'D1': { row: 5, col: 5, widthUnits: 1, heightUnits: 1 }, // Adjusted position
-  
-  // Stall C1 (Large, 3x3 units) - Placed further down/right
-  'C1': { row: 7, col: 7, widthUnits: 3, heightUnits: 3 }, // Adjusted position
-  
-  // Placeholder stalls (optional, kept from previous response)
-  'E1': { row: 0, col: 0, widthUnits: 3, heightUnits: 2 },
-  'E2': { row: 0, col: 3, widthUnits: 3, heightUnits: 2 },
-  'E3': { row: 0, col: 6, widthUnits: 3, heightUnits: 2 },
-  'A5': { row: 4, col: 0, widthUnits: 2, heightUnits: 2 },
+// --- HARDCODED POSITIONING MAP (FIXED FOR OVERLAP AND EXPANDED TO 30+ STALLS) ---
+const POSITION_MAP: { [key: string]: Pick<Stall, 'row' | 'col'> } = {
+    // ZONE E (Large, Top Row - Start Row 0)
+    'E1': { row: 0, col: 0 },
+    'E2': { row: 0, col: 5 }, 
+    'E3': { row: 0, col: 10 }, 
+    'E4': { row: 0, col: 15 },
+    
+    // ZONE F (Medium, Below E - Start Row 4)
+    'F1': { row: 4, col: 0 },
+    'F2': { row: 4, col: 4 },
+    'F3': { row: 4, col: 8 },
+
+    // ZONE A (Small, 1-2 unit wide - Start Row 8)
+    'A1': { row: 8, col: 0 },
+    'A2': { row: 8, col: 2 },
+    'A3': { row: 8, col: 4 },
+    'A4': { row: 8, col: 6 }, 
+    'A5': { row: 8, col: 9 },
+    'A6': { row: 8, col: 11 },
+    'A7': { row: 8, col: 13 },
+    'A8': { row: 8, col: 15 }, 
+    'A9': { row: 10, col: 0 },
+    'A10': { row: 10, col: 2 },
+
+    // ZONE B/D (Mixed, Vertical Alignment - Start Row 12)
+    'B1': { row: 12, col: 0 }, // 15x20
+    'B2': { row: 12, col: 4 }, // 10x15
+    'D1': { row: 12, col: 7 }, // 5x5
+    'D2': { row: 14, col: 7 }, // ADDED D2 (10x15) - Placed directly below D1
+    'D3': { row: 12, col: 9 }, // 15x15
+    'B3': { row: 15, col: 0 }, // 15x20
+    'D4': { row: 15, col: 5 }, // 5x5
+    
+    // ZONE C & G (Large, Bottom Area - Start Row 18)
+    'C1': { row: 18, col: 13 }, // 20x20
+    'C2': { row: 18, col: 8 }, // 20x20
+    'G1': { row: 19, col: 0 }, // 10x15
+    'G2': { row: 19, col: 3 }, // 10x15
+    'G3': { row: 20, col: 6 }, // 5x5
+    'G4': { row: 20, col: 7 }, // 5x5
+    'G5': { row: 21, col: 0 }, // 10x10
+    'G6': { row: 21, col: 3 }, // 10x15
 };
-// ---------------------------------
 
-
-// Helper function to map backend data to the full Stall interface
+// Helper function to interpret the dimensions string and map stall data
 const mapStallsWithGridData = (apiStalls: any[]): Stall[] => {
-  return apiStalls
-    .map(apiStall => {
-      const gridProps = GRID_DATA_MAP[apiStall.name];
-      // Only include stalls that have a corresponding grid definition
-      if (!gridProps) {
-        console.warn(`Stall name '${apiStall.name}' not found in GRID_DATA_MAP. Skipping.`);
-        return null; 
-      }
+    
+    const getUnitSize = (dimensions: string): { widthUnits: number, heightUnits: number } => {
+        const match = dimensions.match(/(\d+)\s*[xX]\s*(\d+)/);
+        if (!match) return { widthUnits: 1, heightUnits: 1 };
+        
+        const width = parseInt(match[1], 10);
+        const height = parseInt(match[2], 10);
 
-      // Merge the backend data with the frontend grid data
-      return {
-        id: apiStall.id,
-        name: apiStall.name,
-        size: apiStall.size as Stall['size'],
-        price: apiStall.price, // 'price' maps from backend
-        status: apiStall.status as Stall['status'], // 'status' maps from backend
-        ...gridProps,
-      } as Stall;
-    })
-    .filter((stall): stall is Stall => stall !== null);
+        // Scale factor: 5 feet in reality = 1 grid unit on screen (30px)
+        const scaleFactor = 5; 
+        const widthUnits = Math.max(1, Math.round(width / scaleFactor));
+        const heightUnits = Math.max(1, Math.round(height / scaleFactor));
+
+        return { widthUnits, heightUnits };
+    };
+
+    return apiStalls
+        .map(apiStall => {
+            const positionProps = POSITION_MAP[apiStall.name];
+            if (!positionProps) {
+                return null; 
+            }
+
+            // Calculate proportional units from the backend's dimensions string
+            const unitProps = getUnitSize(apiStall.dimensions || "5x5");
+
+            return {
+                id: apiStall.id,
+                name: apiStall.name,
+                size: apiStall.size as Stall['size'],
+                price: apiStall.price,
+                status: apiStall.status as Stall['status'],
+                dimensions: apiStall.dimensions,
+                ...positionProps,
+                ...unitProps, // Inject dynamic units (widthUnits, heightUnits)
+            } as Stall;
+        })
+        .filter((stall): stall is Stall => stall !== null);
 };
 
 
@@ -86,9 +127,11 @@ const FloorMapPage: React.FC = () => {
   useEffect(() => {
     const fetchStalls = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/stalls"); 
+        // Fetch ALL stalls from backend (GET /stalls)
+        const response = await axios.get("http://localhost:5000/stalls", {
+            withCredentials: true // Ensure cookie is sent
+        }); 
         
-        // Backend returns: { count: number, stalls: [] }. Extract the stalls array.
         const apiStalls = response.data.stalls || []; 
 
         // INJECT THE GRID DATA HERE
@@ -110,7 +153,6 @@ const FloorMapPage: React.FC = () => {
     if (stall.status === "AVAILABLE") {
       setSelected(stall);
     } else {
-        // FIXED: Replaced toast.info with toast.error/warn/success to fix TS error
         toast.error(`Stall ${stall.name} is ${stall.status.toLowerCase()}.`); 
     }
   };
@@ -242,8 +284,9 @@ const FloorMapPage: React.FC = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateRows: `repeat(${rows}, 60px)`,
-          gridTemplateColumns: `repeat(${cols}, 60px)`,
+          // Use calculated rows/cols for dynamic grid size
+          gridTemplateRows: `repeat(${rows}, 30px)`, // Row size adjusted for layout density
+          gridTemplateColumns: `repeat(${cols}, 30px)`, // Column width adjusted
           gap: 1,
           justifyContent: "center",
           mt: 4,
@@ -268,7 +311,7 @@ const FloorMapPage: React.FC = () => {
                 backgroundColor: getStallColor(stall.status),
               },
               "&.Mui-disabled": {
-                backgroundColor: "#a0a0a0",
+                backgroundColor: stall.status === "RESERVED" ? "#a0a0a0" : getStallColor(stall.status),
                 color: "#f0f0f0",
               },
             }}
@@ -283,6 +326,7 @@ const FloorMapPage: React.FC = () => {
         <DialogContent>
           <DialogContentText>
             <strong>Size:</strong> {selected?.size} <br />
+            <strong>Dimensions:</strong> {selected?.dimensions} <br />
             <strong>Price:</strong> Rs. {selected?.price?.toLocaleString()} <br />
             <strong>Status:</strong> {selected?.status}
           </DialogContentText>
