@@ -29,28 +29,77 @@ interface AdminStall {
   reservedByEmail: string | null;
   reservedByName: string | null; 
   
-  // Grid properties (injected on frontend, as per previous discussion)
+  // Grid properties (Calculated dynamically)
   widthUnits: number;
   heightUnits: number;
   row: number;
   col: number;
 }
 
-// --- HARDCODED GRID DATA MAP (Essential for rendering map layout) ---
-const GRID_DATA_MAP: { [key: string]: Pick<AdminStall, 'widthUnits' | 'heightUnits' | 'row' | 'col'> } = {
-  'A1': { row: 3, col: 1, widthUnits: 1, heightUnits: 1 },
-  'A2': { row: 3, col: 2, widthUnits: 1, heightUnits: 1 },
-  'B1': { row: 5, col: 3, widthUnits: 2, heightUnits: 2 }, 
-  'D1': { row: 5, col: 5, widthUnits: 1, heightUnits: 1 }, 
-  'C1': { row: 7, col: 7, widthUnits: 3, heightUnits: 3 }, 
-  'E1': { row: 0, col: 0, widthUnits: 3, heightUnits: 2 },
-  'E2': { row: 0, col: 3, widthUnits: 3, heightUnits: 2 },
-  'E3': { row: 0, col: 6, widthUnits: 3, heightUnits: 2 },
-  'A5': { row: 4, col: 0, widthUnits: 2, heightUnits: 2 },
+// --- HARDCODED POSITIONING MAP (FIXED FOR EXPANDED LAYOUT) ---
+// This map assigns unique starting coordinates (row/col) to 30+ stalls.
+const POSITION_MAP: { [key: string]: Pick<AdminStall, 'row' | 'col'> } = {
+    // ZONE E (Large, Top Row - Start Row 0)
+    'E1': { row: 0, col: 0 },
+    'E2': { row: 0, col: 5 }, 
+    'E3': { row: 0, col: 10 }, 
+    'E4': { row: 0, col: 15 },
+    
+    // ZONE F (Medium, Below E - Start Row 4)
+    'F1': { row: 4, col: 0 },
+    'F2': { row: 4, col: 4 },
+    'F3': { row: 4, col: 8 },
+
+    // ZONE A (Small, 1-2 unit wide - Start Row 8)
+    'A1': { row: 8, col: 0 },
+    'A2': { row: 8, col: 2 },
+    'A3': { row: 8, col: 4 },
+    'A4': { row: 8, col: 6 }, 
+    'A5': { row: 8, col: 9 },
+    'A6': { row: 8, col: 11 },
+    'A7': { row: 8, col: 13 },
+    'A8': { row: 8, col: 15 }, 
+    'A9': { row: 10, col: 0 },
+    'A10': { row: 10, col: 2 },
+
+    // ZONE B/D (Mixed, Vertical Alignment - Start Row 12)
+    'B1': { row: 12, col: 0 }, 
+    'B2': { row: 12, col: 4 }, 
+    'D1': { row: 12, col: 7 }, 
+    'D2': { row: 14, col: 7 }, 
+    'D3': { row: 12, col: 9 }, 
+    'B3': { row: 15, col: 0 }, 
+    'D4': { row: 15, col: 5 }, 
+    
+    // ZONE C & G (Large, Bottom Area - Start Row 18)
+    'C1': { row: 18, col: 13 }, 
+    'C2': { row: 18, col: 8 }, 
+    'G1': { row: 19, col: 0 }, 
+    'G2': { row: 19, col: 3 }, 
+    'G3': { row: 20, col: 6 }, 
+    'G4': { row: 20, col: 7 }, 
+    'G5': { row: 21, col: 0 }, 
+    'G6': { row: 21, col: 3 }, 
 };
 
-// Helper function to map backend data to the full AdminStall interface
+// Helper function to interpret the dimensions string and map stall data
 const mapStallsWithGridData = (apiStalls: any[], reservations: any[]): AdminStall[] => {
+    
+    const getUnitSize = (dimensions: string): { widthUnits: number, heightUnits: number } => {
+        const match = dimensions.match(/(\d+)\s*[xX]\s*(\d+)/);
+        if (!match) return { widthUnits: 1, heightUnits: 1 };
+        
+        const width = parseInt(match[1], 10);
+        const height = parseInt(match[2], 10);
+
+        // Scale factor: 5 feet in reality = 1 grid unit on screen (30px)
+        const scaleFactor = 5; 
+        const widthUnits = Math.max(1, Math.round(width / scaleFactor));
+        const heightUnits = Math.max(1, Math.round(height / scaleFactor));
+
+        return { widthUnits, heightUnits };
+    };
+    
     // Index reservations by stallId for fast lookup
     const reservationMap = new Map();
     reservations.forEach(res => {
@@ -63,12 +112,12 @@ const mapStallsWithGridData = (apiStalls: any[], reservations: any[]): AdminStal
 
     return apiStalls
         .map(apiStall => {
-            const gridProps = GRID_DATA_MAP[apiStall.name];
-            if (!gridProps) {
+            const positionProps = POSITION_MAP[apiStall.name];
+            if (!positionProps) {
                 return null; 
             }
-            
-            // Find reservation user details
+
+            const unitProps = getUnitSize(apiStall.dimensions || "5x5");
             const reservedInfo = reservationMap.get(apiStall.id);
 
             return {
@@ -82,7 +131,8 @@ const mapStallsWithGridData = (apiStalls: any[], reservations: any[]): AdminStal
                 reservedByName: reservedInfo?.name || null, 
                 reservedByBusiness: reservedInfo?.businessName || null,
                 reservedByEmail: reservedInfo?.email || null,
-                ...gridProps,
+                ...positionProps,
+                ...unitProps, 
             } as AdminStall;
         })
         .filter((stall): stall is AdminStall => stall !== null);
@@ -169,8 +219,8 @@ const AdminFloorMap: React.FC = () => {
         <Box
           sx={{
             display: "grid",
-            gridTemplateRows: `repeat(${rows}, 60px)`,
-            gridTemplateColumns: `repeat(${cols}, 60px)`,
+            gridTemplateRows: `repeat(${rows}, 30px)`, 
+            gridTemplateColumns: `repeat(${cols}, 30px)`, 
             gap: 1,
             justifyContent: "center",
             mt: 4,
@@ -200,7 +250,7 @@ const AdminFloorMap: React.FC = () => {
           ))}
         </Box>
 
-        <Dialog open={!!selected} onClose={handleClose} maxWidth="sm" fullWidth>
+        <Dialog open={!!selected} onClose={handleClose} maxWidth="md" fullWidth>
           <DialogTitle>Stall {selected?.name} - Details</DialogTitle>
           <DialogContent>
             <DialogContentText component={"div"} sx={{ color: "text.primary" }}>
