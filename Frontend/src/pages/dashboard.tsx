@@ -31,8 +31,8 @@ type Reservation = {
   stallId: string;
 };
 
-// ADDED: Local Storage key for simulated persistence
-const LOCAL_STORAGE_GENRE_KEY = "STALL_GENRES";
+// Key now includes reservation ID to allow multiple independent genre saves.
+const getGenreStorageKey = (reservationId: string) => `STALL_GENRES_${reservationId}`; 
 
 // UPDATED: Function signature now returns both the main reservation and the count.
 const fetchMyReservation = async (): Promise<{ activeReservations: Reservation[], count: number }> => {
@@ -60,16 +60,16 @@ const fetchMyReservation = async (): Promise<{ activeReservations: Reservation[]
         const sizeString = stall?.size || 'SMALL';
         const stallSize = ['SMALL', 'MEDIUM', 'LARGE'].includes(sizeString) ? sizeString : 'SMALL';
 
-        // FIX 1: Safely read genres, prioritizing local storage data if the reservation is the FIRST one
+        // FIX 1: Read genres specifically for THIS reservation ID
         let genresData: string[] | null = null;
-        const storedGenres = localStorage.getItem(LOCAL_STORAGE_GENRE_KEY);
+        const storedGenres = localStorage.getItem(getGenreStorageKey(res.id));
 
-        if (storedGenres && res.id === activeBackendReservations[0].id) {
-             genresData = storedGenres.split(',').map((g: string) => g.trim());
+        if (storedGenres) {
+            genresData = storedGenres.split(',').map((g: string) => g.trim());
         } else {
-             genresData = (res.genres && typeof res.genres === 'string') 
-                          ? res.genres.split(',').map((g: string) => g.trim()) 
-                          : null;
+            genresData = (res.genres && typeof res.genres === 'string') 
+                            ? res.genres.split(',').map((g: string) => g.trim()) 
+                            : null;
         }
 
         return {
@@ -93,185 +93,184 @@ const fetchMyReservation = async (): Promise<{ activeReservations: Reservation[]
   }
 };
 
+
+// ----------------------------------------------------
+// NEW COMPONENT: Manages genre state and submission for a single reservation
+// ----------------------------------------------------
+interface GenrePanelProps {
+    reservation: Reservation;
+    isMainReservation: boolean;
+    onGenresSaved: (reservationId: string, genres: string[]) => void;
+}
+
+const GenrePanel: React.FC<GenrePanelProps> = ({ reservation, isMainReservation, onGenresSaved }) => {
+    // Local state for the text input for this specific panel
+    const [genresInput, setGenresInput] = useState(reservation.genres?.join(', ') || '');
+    const [isEditing, setIsEditing] = useState(reservation.genres === null || reservation.genres.length === 0);
+
+    const handleSave = () => {
+        const genresArray = genresInput.split(',').map(g => g.trim()).filter(g => g.length > 0);
+        const genresString = genresArray.join(',');
+        
+        // Save genres to localStorage using reservation-specific key
+        localStorage.setItem(getGenreStorageKey(reservation.id), genresString);
+
+        // Notify parent component (Dashboard) to update its state
+        onGenresSaved(reservation.id, genresArray);
+        
+        setIsEditing(false);
+
+        toast.success(`Genres for Stall ${reservation.stallName} accepted! Submission to server pending.`, { duration: 5000 });
+    };
+
+    const handleEdit = () => {
+        // Clear local storage for this reservation to simulate editing
+        localStorage.removeItem(getGenreStorageKey(reservation.id));
+        setGenresInput(reservation.genres?.join(', ') || '');
+        onGenresSaved(reservation.id, []); // Clear genres in parent state temporarily
+        setIsEditing(true);
+    };
+
+    // SCENARIO 1: Show "Add Genre" form
+    if (isEditing) {
+        return (
+            <Grid item xs={12}>
+                <Paper sx={{ p: 4, mb: 4 }}>
+                    <Box>
+                        <Typography variant="h6" gutterBottom>
+                            Thank you for your reservation for Stall {reservation.stallName}!
+                        </Typography>
+                        <Typography variant="body1" sx={{ mb: 3 }}>
+                            Please add the literary genres you will be displaying at your
+                            stall.
+                        </Typography>
+                        <TextField
+                            label="Literary Genres (e.g., Fiction, Sci-Fi)"
+                            variant="outlined"
+                            fullWidth
+                            multiline
+                            rows={4}
+                            sx={{ mb: 2 }}
+                            value={genresInput}
+                            onChange={(e) => setGenresInput(e.target.value)}
+                        />
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleSave}
+                        >
+                            Save Genres
+                        </Button>
+                    </Box>
+                </Paper>
+            </Grid>
+        );
+    }
+    
+    // SCENARIO 2: Show the saved reservation and QR Pass side-by-side
+    return (
+        <React.Fragment key={reservation.id}>
+            <Grid item xs={12} md={7}>
+                <Paper sx={{ p: 3, height: '100%', borderRadius: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                        Stall {reservation.stallName} Details
+                    </Typography>
+                    <List disablePadding>
+                        <ListItem disableGutters>
+                            <ListItemIcon>
+                                <StorefrontIcon color="primary" />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Stall"
+                                secondary={`${reservation.stallName} (${reservation.size})`}
+                            />
+                        </ListItem>
+                        {reservation.genres && (
+                            <ListItem disableGutters>
+                                <ListItemIcon>
+                                    <CategoryIcon color="primary" />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Your Genres"
+                                    secondary={reservation.genres.join(', ')}
+                                />
+                            </ListItem>
+                        )}
+                    </List>
+                    
+                    {/* Show Edit Genres button only if genres were previously saved (locally) */}
+                    {reservation.genres && reservation.genres.length > 0 && (
+                        <Button
+                            variant="text"
+                            sx={{ mt: 2, mr: 2 }}
+                            onClick={handleEdit}
+                        >
+                            Edit Genres
+                        </Button>
+                    )}
+                </Paper>
+            </Grid>
+
+            {/* --- Card 2: QR Pass (Call to Action) --- */}
+            <Grid item xs={12} md={5}>
+                <Paper
+                    sx={{
+                        p: 3,
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        backgroundColor: 'secondary.main', 
+                        color: 'white',
+                        borderRadius: 2,
+                    }}
+                >
+                    <QrCodeScannerIcon sx={{ fontSize: 60, mb: 2 }} />
+                    <Typography variant="h6" gutterBottom>
+                        Your Entry Pass (Stall {reservation.stallName})
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        onClick={() => console.log('Downloading pass...')}
+                    >
+                        Download Your QR Pass
+                    </Button>
+                </Paper>
+            </Grid>
+        </React.Fragment>
+    );
+};
+// ----------------------------------------------------
+
+
 const Dashboard = () => {
-  const [genres, setGenres] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [activeReservations, setActiveReservations] = useState<Reservation[]>([]); // Store ALL active reservations
   const { user } = useAuthStore(); 
   
-  // State helpers derived from activeReservations
-  const mainReservation = activeReservations[0] || null;
   const activeReservationCount = activeReservations.length;
 
   useEffect(() => {
     fetchMyReservation().then((data) => {
       setActiveReservations(data.activeReservations); 
       setIsLoading(false);
-      
-      if (data.activeReservations[0] && data.activeReservations[0].genres) {
-        setGenres(data.activeReservations[0].genres.join(', '));
-      }
     });
   }, []);
 
-  // FIXED: Now saves genres to localStorage to simulate backend persistence.
-  const handleSaveGenres = async () => {
-    if (!mainReservation) return;
-    
-    const genresArray = genres.split(',').map(g => g.trim()).filter(g => g.length > 0);
-    const genresString = genresArray.join(',');
-
-    // Save genres to localStorage to simulate persistence
-    localStorage.setItem(LOCAL_STORAGE_GENRE_KEY, genresString);
-
-    // Update local state by finding and updating the primary reservation
-    setActiveReservations(prev => 
-        prev.map((res, index) => 
-            index === 0 ? { ...res, genres: genresArray } : res
-        )
-    );
-    
-    toast.success("Genres accepted! Actual submission to server is pending backend implementation.", { duration: 5000 });
+  // Handler to update the state of a specific reservation after genres are saved locally
+  const handleGenresSaved = (reservationId: string, genres: string[]) => {
+      setActiveReservations(prev => 
+          prev.map(res => 
+              res.id === reservationId ? { ...res, genres: genres } : res
+          )
+      );
   };
   
-  // Renders the single reservation panel (reservation details and QR pass)
-  const renderReservationPanel = (reservation: Reservation) => {
-    // Determine if this is the reservation that requires genre input (first one, based on current logic)
-    const needsGenreInput = reservation.id === mainReservation?.id && (reservation.genres === null || reservation.genres.length === 0);
-
-    // SCENARIO 1: Show "Add Genre" form if needed for the main reservation
-    if (needsGenreInput) {
-      return (
-        <Grid item xs={12} key={`input-${reservation.id}`}>
-          <Paper sx={{ p: 4, mb: 4 }}>
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                Thank you for your reservation for Stall {reservation.stallName}!
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 3 }}>
-                Please add the literary genres you will be displaying at your
-                stall.
-              </Typography>
-              <TextField
-                label="Literary Genres (e.g., Fiction, Sci-Fi)"
-                variant="outlined"
-                fullWidth
-                multiline
-                rows={4}
-                sx={{ mb: 2 }}
-                value={genres}
-                onChange={(e) => setGenres(e.target.value)}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSaveGenres}
-              >
-                Save Genres
-              </Button>
-            </Box>
-          </Paper>
-        </Grid>
-      );
-    }
-    
-    // SCENARIO 2: Show the saved reservation and QR Pass side-by-side
-    return (
-      <React.Fragment key={reservation.id}>
-        <Grid item xs={12} md={7}>
-          <Paper sx={{ p: 3, height: '100%', borderRadius: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Stall {reservation.stallName} Details
-            </Typography>
-            <List disablePadding>
-              <ListItem disableGutters>
-                <ListItemIcon>
-                  <StorefrontIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Stall"
-                  secondary={`${reservation.stallName} (${reservation.size})`}
-                />
-              </ListItem>
-              {reservation.genres && (
-                  <ListItem disableGutters>
-                      <ListItemIcon>
-                          <CategoryIcon color="primary" />
-                      </ListItemIcon>
-                      <ListItemText
-                          primary="Your Genres"
-                          secondary={reservation.genres.join(', ')}
-                      />
-                  </ListItem>
-              )}
-            </List>
-            
-            {/* Show Edit Genres button only if genres were previously saved (locally) 
-               and if it's the main reservation */}
-            {reservation.genres && reservation.genres.length > 0 && reservation.id === mainReservation?.id && (
-                <Button
-                    variant="text"
-                    sx={{ mt: 2, mr: 2 }}
-                    onClick={() => {
-                        localStorage.removeItem(LOCAL_STORAGE_GENRE_KEY);
-                        // Force update the state to re-render the input form
-                        setActiveReservations(prev => 
-                            prev.map((res, index) => 
-                                index === 0 ? { ...res, genres: null } : res
-                            )
-                        );
-                    }}
-                >
-                    Edit Genres
-                </Button>
-            )}
-
-            {/* REMOVED: The "Book Another Stall" button is moved out of this Panel. */}
-            
-          </Paper>
-        </Grid>
-
-        {/* --- Card 2: QR Pass (Call to Action) --- */}
-        <Grid item xs={12} md={5}>
-          <Paper
-            sx={{
-              p: 3,
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-              backgroundColor: 'secondary.main', 
-              color: 'white',
-              borderRadius: 2,
-            }}
-          >
-            <QrCodeScannerIcon sx={{ fontSize: 60, mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              Your Entry Pass (Stall {reservation.stallName})
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={() => console.log('Downloading pass...')}
-            >
-              Download Your QR Pass
-            </Button>
-          </Paper>
-        </Grid>
-        
-        {/* Separator between reservations */}
-        {activeReservationCount > 1 && reservation.id !== activeReservations[activeReservations.length - 1].id && (
-            <Grid item xs={12}>
-                <Divider sx={{ my: 2 }} />
-            </Grid>
-        )}
-      </React.Fragment>
-    );
-  };
-
+  // Renders the individual reservation panel (now using GenrePanel)
   const renderDashboardContent = () => {
     if (activeReservations.length === 0) {
       return (
@@ -288,7 +287,26 @@ const Dashboard = () => {
       );
     }
     
-    return activeReservations.map(renderReservationPanel);
+    return (
+        <React.Fragment>
+            {renderCtaRow()}
+            {activeReservations.map((res, index) => (
+                <React.Fragment key={res.id}>
+                    <GenrePanel 
+                        reservation={res} 
+                        isMainReservation={index === 0}
+                        onGenresSaved={handleGenresSaved}
+                    />
+                    {/* Separator between reservations */}
+                    {activeReservationCount > 1 && index < activeReservationCount - 1 && (
+                        <Grid item xs={12}>
+                            <Divider sx={{ my: 2 }} />
+                        </Grid>
+                    )}
+                </React.Fragment>
+            ))}
+        </React.Fragment>
+    );
   };
   
   // Renders the dedicated CTA button row
@@ -296,10 +314,10 @@ const Dashboard = () => {
     // Show only if user has active reservations but is below the limit (max 3)
     if (activeReservationCount > 0 && activeReservationCount < 3) {
       return (
-        <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 4 }}>
+        <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
           <Button 
             variant="contained" 
-            color="secondary" // Use secondary color to distinguish it
+            color="secondary" 
             size="large"
             href="/pricing"
           >
@@ -325,8 +343,6 @@ const Dashboard = () => {
           <Divider sx={{ my: 2 }} />
         </Grid>
         
-        {renderCtaRow()}
-
         {isLoading ? (
           <Grid item xs={12} sx={{ textAlign: 'center', my: 3, p: 4 }}>
             <Box
